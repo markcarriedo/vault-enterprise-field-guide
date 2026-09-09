@@ -31,14 +31,29 @@ Before running the module, the following must already exist in AWS:
       (each base64-encoded) — uploaded to AWS Secrets Manager as three separate plaintext secrets
 - [ ] **AWS KMS key** (symmetric) dedicated to Vault auto-unseal — we need its ARN
 
-## Steps
+## Deployment sequence
+
+The full sequence, end to end. Terraform runs **locally only** — no CI/CD for this build (a
+deliberate choice, not a placeholder to fill in later), so Terraform/Vault CLI installs and
+cloud credentials are local-machine concerns, not pipeline concerns.
 
 1. ~~Confirm target AWS account/region and re-authenticate AWS SSO~~ done
-2. Provision the VPC (or identify an existing one that meets the subnet requirement)
-3. Create the KMS key for auto-unseal
-4. Obtain/prepare the Vault Enterprise license and TLS certificate material, upload both to
-   Secrets Manager
-5. Run the HVD module against the above
+2. Create the certificate files (TLS cert, key, CA bundle for the Vault FQDN)
+3. Obtain the license file
+4. ~~Download the Vault CLI~~ done (`v2.0.0`)
+5. ~~Download the Terraform CLI~~ done (`v1.16.1`)
+6. Deploy the prerequisite resources (VPC, KMS key, Secrets Manager entries) — our own Terraform
+7. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
+8. ~~Configure cloud credentials~~ done (local `hc-sandbox` profile)
+9. Initialize the Terraform workspace for the HVD module
+10. Input variables (VPC/subnet IDs, KMS key ARN, Secrets Manager ARNs, FQDN) from step 6's output
+11. `terraform plan`
+12. `terraform apply`
+13. Validate the cluster is up and reachable
+14. Initialize the Vault cluster
+
+Terraform state stays local and gitignored (see `.gitignore`) — it can hold sensitive values,
+and there's no remote backend since this isn't running in CI/CD.
 
 ## Gotchas
 

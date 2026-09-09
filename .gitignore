@@ -3,3 +3,16 @@ site/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Terraform - local-only workflow (see decision log), state can hold sensitive values
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
