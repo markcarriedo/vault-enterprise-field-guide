@@ -24,12 +24,13 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org)
 summary line. See [`cliff.toml`](cliff.toml) for how message types map to changelog sections,
 and the [decision log](docs/reference/decisions.md) for why.
 
-`CHANGELOG.md` is committed, not auto-generated in CI, so regenerate and commit it alongside
-any change:
+`CHANGELOG.md` is committed, but kept in sync automatically — a `post-commit` hook
+(`scripts/update-changelog.sh`, wired up via `pre-commit`, see below) regenerates it after
+every commit and amends the result straight in if anything changed. Requires `git-cliff`
+installed locally:
 
 ```bash
 brew install git-cliff
-git-cliff -o CHANGELOG.md
 ```
 
 ## Running the site locally
@@ -42,10 +43,11 @@ python3 -m venv .venv
 
 Then open <http://127.0.0.1:8000>.
 
-## Secret scanning
+## Git hooks
 
-This repo uses [gitleaks](https://github.com/gitleaks/gitleaks) via [pre-commit](https://pre-commit.com)
-to block commits containing credentials, keys, or tokens. After cloning:
+This repo uses [pre-commit](https://pre-commit.com) for two hooks: [gitleaks](https://github.com/gitleaks/gitleaks)
+(blocks commits containing credentials, keys, or tokens) and the changelog auto-update above.
+One install sets up both hook types (`pre-commit` and `post-commit`):
 
 ```bash
 brew install pre-commit

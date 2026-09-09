@@ -15,6 +15,32 @@ Template:
 
 ---
 
+## 2026-09-09 — Auto-regenerate CHANGELOG.md via a post-commit hook
+
+**Context:** Moving `CHANGELOG.md` to a committed, root-level file (see "move CHANGELOG.md to
+the repo root" below) made it a manual regeneration step — and it immediately drifted 6
+commits behind, exactly the risk that decision flagged. Manual discipline wasn't enough.
+
+**Decision:** A `post-commit` hook (`scripts/update-changelog.sh`), installed via the existing
+`pre-commit` framework alongside gitleaks, regenerates `CHANGELOG.md` after every commit and
+amends the result into that same commit if it changed — no separate "update changelog"
+commits cluttering history. Safe from infinite recursion: the amend re-triggers the hook, but
+git-cliff's output depends only on commit messages (unchanged by `--no-edit`), so the second
+pass produces identical content, sees no diff, and exits.
+
+**Alternatives considered:** A `pre-commit`-stage hook — rejected, it runs before the commit
+object exists, so git-cliff can't see the commit it's meant to summarize. CI-side generation —
+rejected earlier already (see below) since the site doesn't depend on this file.
+
+**Consequences:** `pre-commit install` now sets up both `pre-commit` and `post-commit` hook
+types (`default_install_hook_types` in `.pre-commit-config.yaml`) — one install command still
+covers everything. Requires `git-cliff` installed locally; the hook skips gracefully (doesn't
+block the commit) if it isn't. Every local commit now amends immediately after creation, so
+`git log` timestamps/hashes for the amended commit reflect the amend time, not the original
+`git commit` invocation — inconsequential for a solo workflow.
+
+---
+
 ## 2026-09-09 — Retire the journal in favor of a git-cliff changelog
 
 **Context:** Had been hand-writing `docs/journal/` as a dated, narrative log. Wanted a
