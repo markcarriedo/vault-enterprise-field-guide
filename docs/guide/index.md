@@ -1,7 +1,8 @@
 # Guide Overview
 
 The reference path through this build, in order. Each section is filled in once we've
-actually done that part and validated it.
+actually done that part and validated it — see the [journal](../journal/index.md) for the
+in-progress notes behind each one.
 
 1. [Planning & Prerequisites](01-planning.md)
 2. [AWS Infrastructure](02-aws-infrastructure.md)
