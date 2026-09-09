@@ -50,23 +50,43 @@ related commit's body.
 
 ---
 
+## 2026-09-09 — No local AWS profile; credentials via environment variables only
+
+**Context:** Had created a local `hc-sandbox` CLI profile (in `~/.aws/credentials`) to hold
+the Doormat-issued sandbox credentials, so Terraform/AWS CLI commands didn't need the raw
+values re-supplied each time. Reconsidered — even though the credentials are short-lived STS
+sessions, persisting them to a profile file means they sit on disk (readable by anything with
+local file access) for the life of that session, however short.
+
+**Decision:** No local AWS profile for the sandbox account, and no `profile` argument in any
+Terraform provider block. Credentials are supplied purely via the standard AWS SDK environment
+variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`) for the duration
+of a single command/session, never written to `~/.aws/credentials`.
+
+**Consequences:** Every Terraform/AWS CLI invocation needs those three env vars exported first
+— there's no persistent local profile to fall back on. This supersedes the `hc-sandbox` profile
+mentioned in the "Sandbox account and region" decision below; the account/region choice there
+still stands, only the credential-storage mechanism changed.
+
+---
+
 ## 2026-09-09 — Sandbox account and region: HashiCorp sandbox, ap-southeast-2
 
 **Context:** Needed a target AWS account/region to build in. Personal AWS profiles were an
 option, but a HashiCorp Doormat-issued sandbox account is more appropriate — isolated from
 personal infra, and expected to be disposable.
 
-**Decision:** Build in the HashiCorp sandbox account (profile `hc-sandbox`, credentials local
-only — not committed), region `ap-southeast-2`. Chosen for consistency with existing personal
-profiles (both `ap-southeast-2`) and latency.
+**Decision:** Build in the HashiCorp sandbox account, region `ap-southeast-2`. Chosen for
+consistency with existing personal profiles (both `ap-southeast-2`) and latency. (Credential
+storage mechanism superseded — see the "No local AWS profile" decision above.)
 
 Note: STS session credentials are *not* region-locked — verified by successfully calling
 `describe-vpcs` in three different regions with the same session. An initial region guess had
 come from a hint embedded in the STS token's structure, not an actual restriction — worth
 remembering next time a token needs a region assumption.
 
-**Consequences:** All Terraform/AWS CLI work targets profile `hc-sandbox`, region
-`ap-southeast-2`; credentials are short-lived (Doormat/STS) and will need periodic refresh.
+**Consequences:** All Terraform/AWS CLI work targets this account, region `ap-southeast-2`;
+credentials are short-lived (Doormat/STS) and will need periodic refresh.
 Survey of that account/region found only the AWS-managed default VPC (3 public subnets, no
 private subnets, no NAT gateways) and two AWS-managed KMS keys (Secrets Manager and Lambda
 defaults) — neither usable for Vault. All four prerequisites start from scratch. Account IDs,

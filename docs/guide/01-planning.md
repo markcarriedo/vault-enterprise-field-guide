@@ -12,9 +12,11 @@ backend to provision.
 
 ## Target environment
 
-HashiCorp sandbox AWS account, region **ap-southeast-2**. Credentials via a local `hc-sandbox`
-CLI profile (Doormat-issued STS session, short-lived — not committed anywhere). See
-[decision log](../reference/decisions.md) for how we landed on this account/region.
+HashiCorp sandbox AWS account, region **ap-southeast-2**. Credentials are a Doormat-issued STS
+session, exported as plain `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`
+environment variables for the duration of a session — no local AWS CLI profile, nothing
+persisted to `~/.aws/credentials`. See [decision log](../reference/decisions.md) for how we
+landed on this account/region and why no profile.
 
 A survey of that account/region found only the AWS-managed default VPC (public subnets only,
 no NAT gateways) and AWS-managed default KMS keys — nothing reusable. All four prerequisites
@@ -39,21 +41,33 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 
 1. ~~Confirm target AWS account/region and re-authenticate AWS SSO~~ done
 2. Create the certificate files (TLS cert, key, CA bundle for the Vault FQDN)
-3. Obtain the license file
+3. ~~Obtain the license file~~ done
 4. ~~Download the Vault CLI~~ done (`v2.0.0`)
 5. ~~Download the Terraform CLI~~ done (`v1.16.1`)
-6. Deploy the prerequisite resources (VPC, KMS key, Secrets Manager entries) — our own Terraform
-7. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
-8. ~~Configure cloud credentials~~ done (local `hc-sandbox` profile)
-9. Initialize the Terraform workspace for the HVD module
-10. Input variables (VPC/subnet IDs, KMS key ARN, Secrets Manager ARNs, FQDN) from step 6's output
-11. `terraform plan`
-12. `terraform apply`
-13. Validate the cluster is up and reachable
-14. Initialize the Vault cluster
+6. Bootstrap the Terraform state bucket (`terraform/bootstrap/` — see below); config written,
+   plan reviewed (6 resources), **not yet applied**
+7. Deploy the prerequisite resources (VPC, KMS key, Secrets Manager entries) — our own Terraform
+   in `terraform/prerequisites/`; config written, plan reviewed (27 resources), **not yet
+   applied**, and not yet pointed at the (not-yet-existing) state bucket as its backend —
+   still using local state for now
+8. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
+9. ~~Configure cloud credentials~~ done (env vars, no profile — see decision log)
+10. Initialize the Terraform workspace for the HVD module
+11. Input variables (VPC/subnet IDs, KMS key ARN, Secrets Manager ARNs, FQDN) from step 7's output
+12. `terraform plan`
+13. `terraform apply`
+14. Validate the cluster is up and reachable
+15. Initialize the Vault cluster
 
-Terraform state stays local and gitignored (see `.gitignore`) — it can hold sensitive values,
-and there's no remote backend since this isn't running in CI/CD.
+### Terraform state (planned, not yet live)
+
+Still local-only execution (no CI/CD), but state itself will live in **S3 with native locking**
+(`use_lockfile = true`, no DynamoDB needed — GA since Terraform 1.11) rather than a local file:
+durability and lock-safety without needing a pipeline. `terraform/bootstrap/` will create the
+state bucket using local state itself (the standard chicken-and-egg exception for backend
+bootstrapping) — once applied, `terraform/prerequisites/` gets a `backend "s3"` block added
+pointing at that bucket. Until then, `prerequisites/` has no backend configured (defaults to
+local) and hasn't been applied at all, so there's currently no state file anywhere for it.
 
 ## Gotchas
 
