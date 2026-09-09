@@ -1,10 +1,8 @@
 # Vault Enterprise on AWS EC2 — Field Guide
 
 A field guide for installing and configuring [HashiCorp Vault Enterprise](https://www.hashicorp.com/products/vault)
-on AWS, starting on EC2. Written as we go: a dated journal of what actually happened, plus a
-distilled reference guide kept current as each stage of the build is done and validated.
+on AWS, starting on EC2. Kept current as each stage of the build is done and validated.
 
-- **[Journal](docs/journal/index.md)** — field notes in the order things happened
 - **[Guide](docs/guide/index.md)** — the numbered how-to: planning, AWS infra, install,
   config, storage, auto-unseal, TLS, clustering/HA, operations, troubleshooting
 - **[Reference](docs/reference/architecture.md)** — architecture, an ADR-style decision log,
