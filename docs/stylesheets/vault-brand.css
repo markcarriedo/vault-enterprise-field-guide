@@ -35,13 +35,3 @@
 .md-footer {
   background-color: #000000;
 }
-
-/* Push the last top-level nav tab (Journal) to the right, separating it from the
-   primary Home/Guide/Reference group. */
-.md-tabs__list {
-  display: flex;
-}
-
-.md-tabs__item:last-child {
-  margin-left: auto;
-}
