@@ -67,8 +67,6 @@ plugins:
 
 nav:
   - Home: index.md
-  - Journal:
-      - journal/index.md
   - Guide:
       - Overview: guide/index.md
       - 1. Planning & Prerequisites: guide/01-planning.md
@@ -85,3 +83,5 @@ nav:
       - reference/architecture.md
       - reference/decisions.md
       - reference/glossary.md
+  - Journal:
+      - journal/index.md
