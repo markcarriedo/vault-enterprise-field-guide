@@ -1,0 +1,37 @@
+/*
+  Vault brand tokens, pulled from HashiCorp's own design system source of truth:
+  https://github.com/hashicorp/design-system/blob/main/packages/tokens/src/global/color/palette-products.json
+  (color.palette.vault-*)
+
+  vault-brand   #ffcf25   vault-400  #bb8e1a
+  vault-50      #fff9cf   vault-500  #9a6f00  (readable "foreground" token — used for light-mode links)
+  vault-100     #feec7b   vault-600  #8b6400
+  vault-200     #ffe543
+  vault-300     #f5d712
+*/
+
+:root {
+  --md-primary-fg-color: #000000;
+  --md-primary-fg-color--light: #1a1a1a;
+  --md-primary-fg-color--dark: #000000;
+  --md-primary-bg-color: #ffcf25;
+  --md-primary-bg-color--light: #ffcf25;
+
+  --md-accent-fg-color: #9a6f00;
+  --md-accent-fg-color--transparent: rgba(255, 207, 37, 0.15);
+  --md-accent-bg-color: #000000;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-accent-fg-color: #ffe543;
+  --md-accent-fg-color--transparent: rgba(255, 229, 67, 0.15);
+  --md-accent-bg-color: #000000;
+}
+
+.md-header {
+  background-color: #000000;
+}
+
+.md-footer {
+  background-color: #000000;
+}
