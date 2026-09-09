@@ -19,19 +19,23 @@ persisted to `~/.aws/credentials`. See [decision log](../reference/decisions.md)
 landed on this account/region and why no profile.
 
 A survey of that account/region found only the AWS-managed default VPC (public subnets only,
-no NAT gateways) and AWS-managed default KMS keys — nothing reusable. All four prerequisites
-below are being built from scratch.
+no NAT gateways) and AWS-managed default KMS keys — nothing reusable. Three of the four
+prerequisites below have since been built from scratch; TLS material is still outstanding.
 
 ## Prerequisites
 
 Before running the module, the following must already exist in AWS:
 
-- [ ] **VPC** with at least 3 private subnets (distinct AZs) for the Vault nodes, plus subnets
+- [x] **VPC** with at least 3 private subnets (distinct AZs) for the Vault nodes, plus subnets
       for the load balancer, and NAT Gateway(s) for outbound package/OS-patch access
-- [ ] **Vault Enterprise license**, uploaded to AWS Secrets Manager (plaintext secret)
+- [x] **Vault Enterprise license**, uploaded to AWS Secrets Manager (plaintext secret)
 - [ ] **TLS certificate material** for the Vault FQDN — signed cert, private key, and CA bundle
       (each base64-encoded) — uploaded to AWS Secrets Manager as three separate plaintext secrets
-- [ ] **AWS KMS key** (symmetric) dedicated to Vault auto-unseal — we need its ARN
+- [x] **AWS KMS key** (symmetric) dedicated to Vault auto-unseal — we need its ARN
+
+All three applied via `terraform/prerequisites` (27 resources). ARNs/IDs deliberately not
+recorded here (public repo) — run `terraform output` locally to get them when wiring up the
+HVD module.
 
 ## Deployment sequence
 
@@ -45,9 +49,8 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 4. ~~Download the Vault CLI~~ done (`v2.0.0`)
 5. ~~Download the Terraform CLI~~ done (`v1.16.1`)
 6. ~~Bootstrap the Terraform state bucket~~ done (`terraform/bootstrap/`)
-7. Deploy the prerequisite resources (VPC, KMS key, Secrets Manager entries) — our own Terraform
-   in `terraform/prerequisites/`, now pointed at the state bucket from step 6 as its S3 backend;
-   config written, plan reviewed (27 resources), **not yet applied**
+7. ~~Deploy the prerequisite resources~~ done — VPC, KMS key, and license secret (27 resources)
+   applied via `terraform/prerequisites/`, state in S3
 8. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
 9. ~~Configure cloud credentials~~ done (env vars, no profile — see decision log)
 10. Initialize the Terraform workspace for the HVD module
