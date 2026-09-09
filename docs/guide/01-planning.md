@@ -10,6 +10,16 @@ ASG/load balancer/IAM setup ourselves. See [decision log](../reference/decisions
 The module deploys Vault Enterprise with **Integrated Storage (Raft)** — no separate storage
 backend to provision.
 
+## Target environment
+
+HashiCorp sandbox AWS account, region **ap-southeast-2**. Credentials via a local `hc-sandbox`
+CLI profile (Doormat-issued STS session, short-lived — not committed anywhere). See
+[decision log](../reference/decisions.md) for how we landed on this account/region.
+
+A survey of that account/region found only the AWS-managed default VPC (public subnets only,
+no NAT gateways) and AWS-managed default KMS keys — nothing reusable. All four prerequisites
+below are being built from scratch.
+
 ## Prerequisites
 
 Before running the module, the following must already exist in AWS:
@@ -23,7 +33,7 @@ Before running the module, the following must already exist in AWS:
 
 ## Steps
 
-1. Confirm target AWS account/region and re-authenticate AWS SSO
+1. ~~Confirm target AWS account/region and re-authenticate AWS SSO~~ done
 2. Provision the VPC (or identify an existing one that meets the subnet requirement)
 3. Create the KMS key for auto-unseal
 4. Obtain/prepare the Vault Enterprise license and TLS certificate material, upload both to
@@ -31,6 +41,9 @@ Before running the module, the following must already exist in AWS:
 5. Run the HVD module against the above
 
 ## Gotchas
+
+- STS session credentials are **not region-locked** — don't assume the region a token happens
+  to work in first is the "correct" one; confirm explicitly.
 
 ## References
 
