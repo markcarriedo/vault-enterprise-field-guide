@@ -15,6 +15,37 @@ Template:
 
 ---
 
+## 2026-09-09 — Retire the journal in favor of a git-cliff changelog
+
+**Context:** Had been hand-writing `docs/journal/` as a dated, narrative log. Wanted a
+changelog without adopting full `semantic-release` (no package/release cadence here — this
+is a continuously-updated docs site, not a versioned artifact). Considered `git-cliff` purely
+as a supplementary changelog alongside the journal, since git-cliff only knows what's in
+commit messages — no reasoning, unless it's written there.
+
+**Decision:** Adopt [Conventional Commits](https://www.conventionalcommits.org) for every
+commit going forward, write reasoning into the commit **body** (not just a one-line summary),
+and configure `git-cliff` (`cliff.toml`) to render that body in the generated changelog —
+closing the gap that made journal narrative seem necessary in the first place. Retire the
+journal entirely; `docs/changelog.md` (a snippet-include of the generated root `CHANGELOG.md`)
+takes over its role in the site nav.
+
+**Alternatives considered:** Keeping both (journal for reasoning, git-cliff for a terse
+commit list) — rejected as redundant once reasoning lives in commit bodies instead.
+Rewriting existing commit history to retrofit Conventional Commits — rejected; this repo is
+public and already pushed, so rewriting published history isn't worth it. Existing commits
+are kept as-is and fall into an "Other" bucket in the changelog (`filter_unconventional =
+false` in `cliff.toml`) rather than being dropped or rewritten.
+
+**Consequences:** Every future commit needs a `type(scope): summary` line and, where the
+change isn't self-explanatory, a body paragraph explaining why. `CHANGELOG.md` is generated
+(via `git-cliff`), not hand-written, and is gitignored — regenerate with `git-cliff -o
+CHANGELOG.md` before building the site locally; CI regenerates it on every deploy. Work that
+produces no commit at all (pure investigation, a decision reached through discussion) still
+has no home unless it's folded into the next related commit's body.
+
+---
+
 ## 2026-09-09 — Sandbox account and region: HashiCorp sandbox, ap-southeast-2
 
 **Context:** Needed a target AWS account/region to build in. Personal AWS profiles were an

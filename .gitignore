@@ -1,5 +1,6 @@
 .venv/
 site/
+/CHANGELOG.md
 __pycache__/
 *.pyc
 .DS_Store
