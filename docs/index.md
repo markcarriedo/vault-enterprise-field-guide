@@ -7,10 +7,14 @@ This is a working field guide, written as we go, for installing and configuring
   journey stabilizes. This is what you'd hand someone doing this for the first time.
 - **[Reference](reference/architecture.md)** — architecture diagram, an
   [ADR-style decision log](reference/decisions.md), and a [glossary](reference/glossary.md).
-- **[Changelog](changelog.md)** — generated from commit history via
-  [git-cliff](https://git-cliff.org); the commit-by-commit record of what changed and why.
+
+The commit-by-commit history lives in [`CHANGELOG.md`](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
+at the repo root (generated via [git-cliff](https://git-cliff.org)) — it's a repo artifact,
+not part of this site.
 
 ## Status
 
 !!! info "In progress"
-    Planning & prerequisites underway — see the [changelog](changelog.md) for the latest.
+    Planning & prerequisites underway — see the
+    [changelog](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
+    for the latest.

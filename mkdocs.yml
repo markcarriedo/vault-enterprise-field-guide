@@ -52,10 +52,7 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets:
-      base_path:
-        - .
-        - docs
+  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
   - tables
@@ -86,4 +83,3 @@ nav:
       - reference/architecture.md
       - reference/decisions.md
       - reference/glossary.md
-  - Changelog: changelog.md
