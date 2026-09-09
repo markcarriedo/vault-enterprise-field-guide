@@ -44,12 +44,10 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 3. ~~Obtain the license file~~ done
 4. ~~Download the Vault CLI~~ done (`v2.0.0`)
 5. ~~Download the Terraform CLI~~ done (`v1.16.1`)
-6. Bootstrap the Terraform state bucket (`terraform/bootstrap/` — see below); config written,
-   plan reviewed (6 resources), **not yet applied**
+6. ~~Bootstrap the Terraform state bucket~~ done (`terraform/bootstrap/`)
 7. Deploy the prerequisite resources (VPC, KMS key, Secrets Manager entries) — our own Terraform
-   in `terraform/prerequisites/`; config written, plan reviewed (27 resources), **not yet
-   applied**, and not yet pointed at the (not-yet-existing) state bucket as its backend —
-   still using local state for now
+   in `terraform/prerequisites/`, now pointed at the state bucket from step 6 as its S3 backend;
+   config written, plan reviewed (27 resources), **not yet applied**
 8. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
 9. ~~Configure cloud credentials~~ done (env vars, no profile — see decision log)
 10. Initialize the Terraform workspace for the HVD module
@@ -59,15 +57,15 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 14. Validate the cluster is up and reachable
 15. Initialize the Vault cluster
 
-### Terraform state (planned, not yet live)
+### Terraform state
 
-Still local-only execution (no CI/CD), but state itself will live in **S3 with native locking**
+Still local-only execution (no CI/CD), but state itself lives in **S3 with native locking**
 (`use_lockfile = true`, no DynamoDB needed — GA since Terraform 1.11) rather than a local file:
-durability and lock-safety without needing a pipeline. `terraform/bootstrap/` will create the
-state bucket using local state itself (the standard chicken-and-egg exception for backend
-bootstrapping) — once applied, `terraform/prerequisites/` gets a `backend "s3"` block added
-pointing at that bucket. Until then, `prerequisites/` has no backend configured (defaults to
-local) and hasn't been applied at all, so there's currently no state file anywhere for it.
+durability and lock-safety without needing a pipeline. `terraform/bootstrap/` created the state
+bucket using local state itself (the standard chicken-and-egg exception for backend
+bootstrapping, applied once and rarely touched again); `terraform/prerequisites/` now has a
+`backend "s3"` block pointing at that bucket, confirmed working via `terraform init` + `plan`
+(no local `terraform.tfstate` anywhere for it, bucket empty until the first `apply`).
 
 ## Gotchas
 
