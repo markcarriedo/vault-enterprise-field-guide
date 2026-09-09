@@ -10,9 +10,6 @@ header_marker = "<!-- git-cliff: end of header -->"
 body = """
 {% if version %}\
     ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
-{% else %}\
-    ## [Unreleased]
-{% endif %}\
 {% for entry in commits | commit_groups(groups=commit_parsers_groups) %}
     ### {{ entry.group | striptags | trim | upper_first }}
     {% for commit in entry.commits %}
@@ -24,7 +21,19 @@ body = """
   {{ commit.body | trim }}
             {%- endif %}
     {% endfor %}
-{% endfor %}
+{% endfor %}\
+{% else %}\
+    {%- set_global seen_day = "" %}\
+    {%- for commit in commits %}\
+        {%- set day = commit.author.timestamp | date(format="%Y-%m-%d") %}\
+        {%- if day != seen_day %}
+## {{ day }}
+        {%- endif %}
+        {%- set_global seen_day = day %}\
+        {%- set type = commit.raw_message | split(pat=":") | first | split(pat="(") | first | trim %}
+- **{{ type }}{% if commit.scope %}({{ commit.scope }}){% endif %}:{% if commit.breaking %} [BREAKING]{% endif %} {{ commit.message | upper_first }}**{% if commit.body %} - {{ commit.body | trim | replace(from="\n", to=" ") }}{% endif %}
+    {%- endfor %}
+{% endif %}\
 """
 # Remove leading and trailing whitespaces from the changelog's body.
 trim = true
@@ -96,6 +105,6 @@ topo_order = false
 topo_order_commits = true
 # Order of commits in each group/release within the changelog.
 # Allowed values: newest, oldest
-sort_commits = "oldest"
+sort_commits = "newest"
 # Process submodules commits
 recurse_submodules = false
