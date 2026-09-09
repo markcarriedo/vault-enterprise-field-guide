@@ -1,0 +1,80 @@
+site_name: Vault Enterprise on AWS EC2 — Field Guide
+site_description: A working field guide documenting the install and configuration of HashiCorp Vault Enterprise on AWS EC2.
+repo_name: vault-enterprise-field-guide
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+
+nav:
+  - Home: index.md
+  - Journal:
+      - journal/index.md
+  - Guide:
+      - Overview: guide/index.md
+      - 1. Planning & Prerequisites: guide/01-planning.md
+      - 2. AWS Infrastructure: guide/02-aws-infrastructure.md
+      - 3. Installing Vault Enterprise: guide/03-installation.md
+      - 4. Configuration: guide/04-configuration.md
+      - 5. Storage Backend: guide/05-storage-backend.md
+      - 6. Auto-Unseal (AWS KMS): guide/06-auto-unseal-kms.md
+      - 7. TLS & Listener: guide/07-tls-listener.md
+      - 8. Clustering & HA: guide/08-clustering-ha.md
+      - 9. Operations & Runbooks: guide/09-operations.md
+      - 10. Troubleshooting: guide/10-troubleshooting.md
+  - Reference:
+      - reference/architecture.md
+      - reference/decisions.md
+      - reference/glossary.md
