@@ -1,5 +1,7 @@
 # Vault Enterprise on AWS EC2 — Field Guide
 
+**Read it: <https://markcarriedo.github.io/vault-enterprise-field-guide/>**
+
 A field guide for installing and configuring [HashiCorp Vault Enterprise](https://www.hashicorp.com/products/vault)
 on AWS, starting on EC2. Kept current as each stage of the build is done and validated.
 
@@ -8,8 +10,8 @@ on AWS, starting on EC2. Kept current as each stage of the build is done and val
 - **[Reference](docs/reference/architecture.md)** — architecture, an ADR-style decision log,
   and a glossary
 
-The site is built with [MkDocs](https://www.mkdocs.org) + Material — see below for running it
-locally.
+The site is built with [MkDocs](https://www.mkdocs.org) + Material and deployed to GitHub Pages
+via Actions on every push to `main` (see `.github/workflows/deploy-docs.yml`).
 
 ## Running the site locally
 

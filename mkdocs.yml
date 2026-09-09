@@ -1,6 +1,8 @@
 site_name: Vault Enterprise on AWS EC2 — Field Guide
 site_description: A working field guide documenting the install and configuration of HashiCorp Vault Enterprise on AWS EC2.
+site_url: https://markcarriedo.github.io/vault-enterprise-field-guide/
 repo_name: vault-enterprise-field-guide
+repo_url: https://github.com/markcarriedo/vault-enterprise-field-guide
 docs_dir: docs
 site_dir: site
 
