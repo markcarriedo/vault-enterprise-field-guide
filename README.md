@@ -12,6 +12,16 @@ python3 -m venv .venv
 
 Then open <http://127.0.0.1:8000>.
 
+## Secret scanning
+
+This repo uses [gitleaks](https://github.com/gitleaks/gitleaks) via [pre-commit](https://pre-commit.com)
+to block commits containing credentials, keys, or tokens. After cloning:
+
+```bash
+brew install pre-commit
+pre-commit install
+```
+
 ## Structure
 
 - `docs/journal/` — dated field notes, written as we go
