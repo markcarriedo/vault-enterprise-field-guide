@@ -1,6 +1,7 @@
 
 ## 2026-09-10
 ### 🚀 Features
+- *(changelog)* Nest by day then commit type ([ba99408](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ba99408e51dcdfe214f558a346c8bae30f07d8e1))
 - *(changelog)* Group entries by commit type instead of by day ([eb77743](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eb777432829967a2827d204afa3f1c2f8679f850))
 - *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([72c0855](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/72c08554e49eef2ab07dd269b90690d612050eca))
 - *(vault)* Enable KV v2, write a verified least-privilege policy ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))
