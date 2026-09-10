@@ -1,8 +1,8 @@
 # Guide Overview
 
 The reference path through this build, in order. Each section is filled in once we've
-actually done that part and validated it — see [`CHANGELOG.md`](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
-for the commit-by-commit history behind each one.
+actually done that part and validated it — see the [journal](../journal/index.md) for the
+in-progress notes and discoveries behind each one.
 
 1. [Planning & Prerequisites](01-planning.md)
 2. [AWS Infrastructure](02-aws-infrastructure.md)

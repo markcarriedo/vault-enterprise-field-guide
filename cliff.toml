@@ -31,7 +31,7 @@ body = """
         {%- endif %}
         {%- set_global seen_day = day %}\
         {%- set type = commit.raw_message | split(pat=":") | first | split(pat="(") | first | trim %}
-- **{{ type }}{% if commit.scope %}({{ commit.scope }}){% endif %}:{% if commit.breaking %} [BREAKING]{% endif %} {{ commit.message | upper_first }}**{% if commit.body %} - {{ commit.body | trim | replace(from="\n", to=" ") }}{% endif %}
+- **{{ type }}{% if commit.scope %}({{ commit.scope }}){% endif %}:{% if commit.breaking %} [BREAKING]{% endif %} {{ commit.message | upper_first }}**
     {%- endfor %}
 {% endif %}\
 """

@@ -15,6 +15,35 @@ Template:
 
 ---
 
+## 2026-09-10 — Journal restored (third time); changelog made purely mechanical
+
+**Context:** Retiring the journal in favor of a git-cliff changelog (see below) relied on
+commit bodies carrying the reasoning that used to live in journal prose. In practice this
+created real overlap: `CHANGELOG.md` entries were rendering the full commit body underneath a
+bold summary, which is functionally the same content a journal entry would carry, just
+attached to a single commit instead of synthesized across a work session. Asked directly
+("is changelog the same as journal?") the honest answer was no - the changelog is
+commit-scoped and terser, and has no home for work that never touched a file - but the actual
+rendered output had drifted close enough to count as duplication anyway.
+
+**Decision:** Bring the journal back (`docs/journal/`, in the site nav) as the narrative home -
+free-form, covers commit-less work, written at the grain of a story rather than one entry per
+commit. Strip `commit.body` out of the `cliff.toml` template entirely, so `CHANGELOG.md` goes
+back to being purely mechanical: one bold `type(scope): summary` line per commit, nothing else.
+
+**Alternatives considered:** Keeping the body in the changelog and dropping the journal
+(already tried - see "Retire the journal" below - concluded it wasn't sufficient). Keeping
+both with bodies in the changelog too - rejected as the exact duplication this decision exists
+to fix.
+
+**Consequences:** Journal entries need writing by hand again, at a coarser grain than
+individual commits (grouping related commits into single narrative beats, not paraphrasing
+each one) - otherwise the journal just becomes the changelog with more words, recreating the
+same overlap in prose form. Commit bodies are still good practice for `git log`/`git blame`
+context even though they no longer surface in `CHANGELOG.md`.
+
+---
+
 ## 2026-09-10 — Pin vault_version to 2.1.0+ent, not the module's 1.17.3+ent default
 
 **Context:** First `terraform apply` of `terraform/vault` succeeded (19 resources), but all

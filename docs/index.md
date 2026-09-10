@@ -23,12 +23,21 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 
     [:octicons-arrow-right-24: Browse reference](reference/architecture.md)
 
+-   __Journal__
+
+    ---
+
+    Dated field notes, in the order things happened — the story: what we tried, what broke,
+    what we decided, and why.
+
+    [:octicons-arrow-right-24: Read the journal](journal/index.md)
+
 -   __Changelog__
 
     ---
 
-    Commit-by-commit history, generated via git-cliff. Lives at the repo root, not part of
-    this site.
+    Mechanical, one line per commit — generated via git-cliff. Lives at the repo root, not
+    part of this site.
 
     [:octicons-arrow-right-24: View on GitHub](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
 
@@ -44,6 +53,5 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 - [ ] Configuration — secrets engines, auth methods, policies
 - [ ] Operations runbooks
 
-See the [changelog](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
-for the day-by-day story, or the [decision log](reference/decisions.md) for why things were
-built the way they were.
+See the [journal](journal/index.md) for the day-by-day story, or the
+[decision log](reference/decisions.md) for why things were built the way they were.
