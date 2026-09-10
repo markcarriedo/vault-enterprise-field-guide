@@ -1,0 +1,15 @@
+# Declarative source of truth for Vault's own configuration - secrets engine
+# mounts and ACL policies. Add a new mount or policy here; main.tf shouldn't
+# need to change unless a genuinely new *kind* of resource shows up (an auth
+# method, say) that these two for_each blocks don't already cover.
+
+mounts:
+  secret:
+    type: kv
+    description: "Static secrets (KV v2) - see guide/04-configuration.md"
+    options:
+      version: "2"
+
+policies:
+  field-guide-app:
+    policy_file: field-guide-app.hcl

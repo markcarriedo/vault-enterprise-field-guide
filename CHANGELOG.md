@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **feat(vault): Manage the secret/ mount and field-guide-app policy in Terraform** ([72c0855](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/72c08554e49eef2ab07dd269b90690d612050eca))
 - **docs(journal): Simplify to "a government agency", drop "tax"** ([5e2c158](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5e2c15864435629fd4f20d7a2b5ab0e95264c7d0))
 - **docs(journal): Remove named org from example, fix self-deprecating tone** ([35902b4](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/35902b45329dcd94ff21a322397d05befc456538))
 - **feat(vault): Enable KV v2, write a verified least-privilege policy** ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))

@@ -1,14 +1,19 @@
-resource "vault_mount" "secret" {
-  path        = "secret"
-  type        = "kv"
-  description = "Static secrets (KV v2) - see guide/04-configuration.md"
-
-  options = {
-    version = "2"
-  }
+locals {
+  config = yamldecode(file("${path.module}/vault-config.yaml"))
 }
 
-resource "vault_policy" "field_guide_app" {
-  name   = "field-guide-app"
-  policy = file("${path.module}/policies/field-guide-app.hcl")
+resource "vault_mount" "this" {
+  for_each = local.config.mounts
+
+  path        = each.key
+  type        = each.value.type
+  description = try(each.value.description, null)
+  options     = try(each.value.options, null)
+}
+
+resource "vault_policy" "this" {
+  for_each = local.config.policies
+
+  name   = each.key
+  policy = file("${path.module}/policies/${each.value.policy_file}")
 }

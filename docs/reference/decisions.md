@@ -15,6 +15,34 @@ Template:
 
 ---
 
+## 2026-09-10 — Mounts and policies driven from YAML instead of one resource block each
+
+**Context:** `terraform/vault-config/main.tf` declared `vault_mount.secret` and
+`vault_policy.field_guide_app` as named resource blocks. That's fine for two resources, but
+the plan for this directory is to grow — dynamic secrets, PKI, more app policies — and a new
+named block per mount or policy means touching `.tf` (and knowing HCL) for what's really just
+new data, not new logic.
+
+**Decision:** Introduced `vault-config.yaml` as the single source of truth for mounts and
+policies, and rewrote `main.tf` to `for_each` over it with `yamldecode()` — one
+`vault_mount.this` and one `vault_policy.this`, keyed by mount path / policy name. Policy
+bodies stay as separate `.hcl` files (referenced from YAML by filename), not inlined into the
+YAML, so they keep reading and diffing like the Vault policy documents they are. Migrated the
+existing state with `terraform state mv` rather than destroy/recreate, and confirmed
+`terraform plan` showed zero changes before trusting it.
+
+**Alternatives considered:** A `.tfvars` file with the same shape - rejected, YAML is more
+approachable for this project's actual editing pattern (adding one mount at a time by hand)
+and doesn't require any Terraform-specific syntax knowledge. Terraform modules per resource
+type - rejected as overkill for two resource types and a handful of instances; revisit if
+this directory's resource *types* (not instances) actually grow.
+
+**Consequences:** Adding a mount or policy is now a YAML edit plus (for a policy) a new
+`.hcl` file - no `.tf` changes, no new resource address to think about. The tradeoff: `for_each`
+loses the descriptive resource names Terraform CLI output used to have
+(`vault_mount.this["secret"]` instead of `vault_mount.secret`) - deliberate, since the map key
+already carries that meaning.
+
 ## 2026-09-10 — Vault's own config moved into Terraform, not just AWS infrastructure
 
 **Context:** The KV v2 mount and `field-guide-app` policy were created with plain `vault`

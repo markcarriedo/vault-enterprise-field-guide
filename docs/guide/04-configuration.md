@@ -39,12 +39,7 @@ The mount and policy above were created by hand with the CLI first, to move fast
 behavior interactively. Once they were working, they moved into `terraform/vault-config/`
 using the [`hashicorp/vault`](https://registry.terraform.io/providers/hashicorp/vault/latest)
 provider — the same pattern already used for the AWS infrastructure, applied to Vault's own
-internal configuration:
-
-- `vault_mount.secret` — the `secret/` KV v2 mount
-- `vault_policy.field_guide_app` — the `field-guide-app` policy, loaded from a `.hcl` file
-  in the repo rather than an inline string, so the policy itself is reviewable in a normal
-  diff
+internal configuration.
 
 Both were brought under management with `terraform import` rather than recreated, then
 verified with `terraform plan` showing zero drift before anything else was touched — proof
@@ -56,6 +51,28 @@ The provider takes no credentials in its config block — like the AWS provider 
 this repo, it reads `VAULT_ADDR`, `VAULT_TOKEN`, `VAULT_CACERT`, and `VAULT_TLS_SERVER_NAME`
 from the environment, supplied fresh each session after the [SSM tunnel](05-operations.md)
 is up. Nothing is hardcoded or persisted to disk.
+
+### Adding a mount or policy
+
+`main.tf` doesn't declare resources directly — it loops over `vault-config.yaml` with
+`for_each`:
+
+```yaml
+mounts:
+  secret:
+    type: kv
+    description: "Static secrets (KV v2) - see guide/04-configuration.md"
+    options:
+      version: "2"
+
+policies:
+  field-guide-app:
+    policy_file: field-guide-app.hcl
+```
+
+To add another mount or policy, add an entry to the YAML (and a `.hcl` file under
+`policies/` for a new policy) — `main.tf` itself only changes when a genuinely new *kind*
+of resource needs managing (an auth method, say), not for every new mount or policy.
 
 ## Gotchas
 
