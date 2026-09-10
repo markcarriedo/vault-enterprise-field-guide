@@ -133,7 +133,7 @@ freshly regenerated `CHANGELOG.md` before any commit is allowed to complete.
 
 ---
 
-## 2026-09-10 — Journal restored (third time); changelog made purely mechanical
+## 2026-09-10 — Journal restored; changelog made purely mechanical
 
 **Context:** Retiring the journal in favor of a git-cliff changelog (see below) relied on
 commit bodies carrying the reasoning that used to live in journal prose. In practice this

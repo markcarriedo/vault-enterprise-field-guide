@@ -9,9 +9,10 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ## 2026-09-10 — Mounts and policies move from HCL blocks to a YAML list
 
-Barely landed the mount and policy in Terraform before reconsidering how they're declared —
-one named `resource` block each doesn't scale to "add a mount whenever," which is exactly the
-plan for this directory. Replaced the two blocks with `vault_mount.this` and
+Anticipated this directory growing past two resources, so followed up the initial import with
+a generalization pass: one named `resource` block each doesn't scale to "add a mount
+whenever," which is exactly the plan for this directory. Replaced the two blocks with
+`vault_mount.this` and
 `vault_policy.this`, both `for_each` over a new `vault-config.yaml`, so growing this out to
 dynamic secrets or more app policies later is a YAML edit, not a Terraform edit.
 

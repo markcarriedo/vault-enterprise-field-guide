@@ -55,5 +55,7 @@ flowchart TB
 
 ## Not yet built
 
-Configuration (secrets engines, auth methods, policies) and operations tooling — see the
-[guide](../guide/index.md) for what's next.
+Auth methods (still root-token-only), dynamic secrets, PKI, and Namespaces — see the
+[guide](../guide/index.md) for what's next. Static secrets (KV v2) and a least-privilege
+policy are already live, both Terraform-managed — see
+[Configuration](../guide/04-configuration.md).
