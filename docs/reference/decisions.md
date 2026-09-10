@@ -15,6 +15,37 @@ Template:
 
 ---
 
+## 2026-09-10 — Changelog hashes: pre-commit stage instead of post-commit self-amend
+
+**Context:** Wanted each changelog entry to show its commit's short hash for direct
+traceability (`git blame` works today but isn't as immediate as just reading the hash off the
+line). First attempt embedded `commit.id` in the existing post-commit self-amend hook and hit
+an unrecoverable infinite loop: a commit's hash changes every time it's amended, so "fix the
+hash" and "the hash is now wrong again" chase each other forever. Caught it running in the
+background, stopped it, reverted before anything was pushed.
+
+**Decision:** Move the regeneration hook to the `pre-commit` **stage** (not just "the
+pre-commit framework" - the actual git hook stage that runs before the commit object exists)
+and drop the amend logic entirely. At that point `git-cliff` can only ever see already-existing
+commits, whose hashes are permanently fixed - safe to render by construction, not by careful
+avoidance. The hook now just regenerates and `git add`s the file; git creates the commit from
+whatever's staged once hooks finish, so the update lands in the same commit without any amend.
+
+**Alternatives considered:** Keep post-commit, omit the hash only for the commit currently
+being amended - technically workable but adds real template complexity (detecting "is this
+the newest entry") for a smaller win than just switching stages. A separate trailing "chore:
+update changelog" commit each time - rejected originally for the same reason it's still
+rejected: needless commit noise.
+
+**Consequences:** A commit's own changelog entry (and hash) doesn't appear until the *next*
+commit runs the hook - its hash simply doesn't exist yet during its own pre-commit phase.
+Verified end-to-end: committed the config change itself, confirmed its own entry was correctly
+absent, then this entry to confirm the previous commit picks up its hash on the very next one.
+Reordered gitleaks to run after this hook in `.pre-commit-config.yaml`, so it also scans the
+freshly regenerated `CHANGELOG.md` before any commit is allowed to complete.
+
+---
+
 ## 2026-09-10 — Journal restored (third time); changelog made purely mechanical
 
 **Context:** Retiring the journal in favor of a git-cliff changelog (see below) relied on

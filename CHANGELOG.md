@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **feat(changelog): Show short commit hash, via pre-commit stage not post** (`ad48b13`)
 - **fix(changelog): Revert commit-hash addition, self-amend can't converge** (`eeb19f5`)
 - **fix(mkdocs): Stop Journal nav item rendering twice** (`3f0fcb0`)
 - **feat: Restore the journal, make CHANGELOG.md purely mechanical** (`e2526a1`)
