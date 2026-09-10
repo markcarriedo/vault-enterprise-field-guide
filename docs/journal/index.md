@@ -7,7 +7,29 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
-## 2026-09-10 — Initialized. The cluster is actually live.
+## 2026-09-10 — First real feature: static secrets, and a detour into multi-tenancy
+
+Configuration work started for real. Enabled KV v2 at `secret/`, wrote a test secret,
+confirmed versioning works. The part that actually mattered: wrote a least-privilege policy
+and then *proved* it — created a token scoped to it and confirmed it could read its own
+secret but got a clean 403 trying to write, and another 403 reaching an unrelated path.
+Reading a policy back after writing it just confirms the HCL parsed; it says nothing about
+whether the rules actually bite.
+
+Went on a real tangent mid-task: asked about the recommended pattern for multiple teams
+sharing static secrets, which turned into a proper comparison of three approaches
+(path-namespaced single mount, separate mounts per team, Enterprise Namespaces) grounded in
+concrete examples - a bank, the ATO. Worth writing up somewhere more permanent than a chat
+transcript, so it became `reference/patterns.md` - the first page in this guide that's
+explicitly conceptual rather than "what we did," following through on a rule I'd suggested a
+few turns earlier: split guide content from reference content, but only once there's actually
+something guide-shaped and something reference-shaped, not preemptively.
+
+The multi-team discussion's real payoff: Namespaces aren't really about "does this team know
+Vault" - they're about compliance and legal-entity boundaries (PCI scope, a subsidiary under
+a different regulator) more than team skill level, and in practice organizations nest the
+patterns rather than picking one - Namespaces for the big regulatory boundaries, path or mount
+conventions for the finer structure inside each one.
 
 Ran `vault operator init` for real. Tunneled to a Vault node via SSM port-forwarding straight
 to its own 8200 — no bastion host, the access pattern this whole build was designed around

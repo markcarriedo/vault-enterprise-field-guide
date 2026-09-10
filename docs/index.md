@@ -51,8 +51,10 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
       Integrated Storage (Raft), running `2.1.0+ent`
 - [x] Initialized & unsealed — auto-unseal via KMS, 3/3 nodes confirmed as Raft peers (1
       leader, 2 followers), root token + recovery keys secured in Secrets Manager
-- [ ] Configuration — secrets engines, auth methods, policies
-- [ ] Operations runbooks
+- [ ] Configuration — static secrets (KV v2) done with a verified least-privilege policy;
+      dynamic secrets, PKI, and auth methods still to come
+- [ ] Operations runbooks — one so far (connecting to the cluster manually); an open-ended
+      category, not a one-time milestone
 
 See the [journal](journal/index.md) for the day-by-day story, or the
 [decision log](reference/decisions.md) for why things were built the way they were.
