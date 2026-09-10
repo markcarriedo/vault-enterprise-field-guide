@@ -329,10 +329,11 @@ related commit's body.
 ## 2026-09-09 — No local AWS profile; credentials via environment variables only
 
 **Context:** Had created a local `hc-sandbox` CLI profile (in `~/.aws/credentials`) to hold
-the Doormat-issued sandbox credentials, so Terraform/AWS CLI commands didn't need the raw
-values re-supplied each time. Reconsidered — even though the credentials are short-lived STS
-sessions, persisting them to a profile file means they sit on disk (readable by anything with
-local file access) for the life of that session, however short.
+the sandbox credentials (issued by an internal credential broker), so Terraform/AWS CLI
+commands didn't need the raw values re-supplied each time. Reconsidered — even though the
+credentials are short-lived STS sessions, persisting them to a profile file means they sit on
+disk (readable by anything with local file access) for the life of that session, however
+short.
 
 **Decision:** No local AWS profile for the sandbox account, and no `profile` argument in any
 Terraform provider block. Credentials are supplied purely via the standard AWS SDK environment
@@ -349,7 +350,8 @@ still stands, only the credential-storage mechanism changed.
 ## 2026-09-09 — Sandbox account and region: HashiCorp sandbox, ap-southeast-2
 
 **Context:** Needed a target AWS account/region to build in. Personal AWS profiles were an
-option, but a HashiCorp Doormat-issued sandbox account is more appropriate — isolated from
+option, but a HashiCorp sandbox account (issued via an internal credential broker) is more
+appropriate — isolated from
 personal infra, and expected to be disposable.
 
 **Decision:** Build in the HashiCorp sandbox account, region `ap-southeast-2`. Chosen for
@@ -362,7 +364,7 @@ come from a hint embedded in the STS token's structure, not an actual restrictio
 remembering next time a token needs a region assumption.
 
 **Consequences:** All Terraform/AWS CLI work targets this account, region `ap-southeast-2`;
-credentials are short-lived (Doormat/STS) and will need periodic refresh.
+credentials are short-lived (internal credential broker/STS) and will need periodic refresh.
 Survey of that account/region found only the AWS-managed default VPC (3 public subnets, no
 private subnets, no NAT gateways) and two AWS-managed KMS keys (Secrets Manager and Lambda
 defaults) — neither usable for Vault. All four prerequisites start from scratch. Account IDs,

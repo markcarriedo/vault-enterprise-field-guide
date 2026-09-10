@@ -12,8 +12,9 @@ backend to provision.
 
 ## Target environment
 
-HashiCorp sandbox AWS account, region **ap-southeast-2**. Credentials are a Doormat-issued STS
-session, exported as plain `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`
+HashiCorp sandbox AWS account, region **ap-southeast-2**. Credentials come from an internal
+credential broker as a short-lived STS session, exported as plain
+`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`
 environment variables for the duration of a session — no local AWS CLI profile, nothing
 persisted to `~/.aws/credentials`. See [decision log](../reference/decisions.md) for how we
 landed on this account/region and why no profile.

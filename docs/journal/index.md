@@ -190,7 +190,8 @@ manage). While auditing the account for anything unexpected, found and deleted t
 
 ## 2026-09-09 — AWS survey: sandbox account, ap-southeast-2
 
-Authenticated to the HashiCorp sandbox account (Doormat-issued STS session) and settled on
+Authenticated to the HashiCorp sandbox account (an internal credential broker issuing a
+short-lived STS session) and settled on
 `ap-southeast-2` as the working region, matching the existing personal AWS profiles. Along the
 way: STS session credentials turned out to *not* be region-locked — a `describe-vpcs` call
 succeeded in three different regions on the same session, disproving an initial (wrong)
