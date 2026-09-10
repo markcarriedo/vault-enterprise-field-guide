@@ -66,9 +66,12 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 11. ~~Input variables~~ done — via `data.terraform_remote_state` reading step 7's outputs
     directly, no manual ARN copying; 3 nodes (module default is 6), SSM access instead of a
     bastion, LB ingress restricted to the VPC CIDR
-12. ~~`terraform plan`~~ done — 19 resources, reviewed, **not yet applied**
-13. `terraform apply`
-14. Validate the cluster is up and reachable
+12. ~~`terraform plan`~~ done — 19 resources, reviewed
+13. ~~`terraform apply`~~ done — hit a real license/version mismatch on first apply, fixed by
+    pinning `vault_version`, see decision log
+14. ~~Validate the cluster is up and reachable~~ done — all 3 nodes healthy in the target
+    group, confirmed via SSM: `active`, `2.1.0+ent`, `awskms` seal, HA enabled, raft storage,
+    correctly `Initialized: false` / `Sealed: true`
 15. Initialize the Vault cluster
 
 ### Terraform state
