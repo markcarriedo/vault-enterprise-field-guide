@@ -15,6 +15,32 @@ Template:
 
 ---
 
+## 2026-09-10 — Changelog grouped by commit type instead of by day
+
+**Context:** `CHANGELOG.md` grouped entries under a `## YYYY-MM-DD` heading per day, newest
+day first. Scanning for "what's changed on the Terraform side" or "what docs changed" meant
+reading every day's entries and filtering by eye — the day grouping tells you *when*, not
+*what kind*.
+
+**Decision:** Switched `cliff.toml`'s template to `git-cliff`'s built-in
+`commit_groups(groups=commit_parsers_groups)`, grouping by Conventional Commits type (🚀
+Features, 🐛 Bug Fixes, 📚 Documentation, etc. — the emoji/label groups were already defined
+in `commit_parsers`, just unused since this repo doesn't tag releases). `sort_commits =
+"newest"` keeps each group newest-first, same as before.
+
+**Alternatives considered:** Keeping day headers as a second grouping level nested under
+type - rejected as needless nesting for a file whose stated job is "mechanical, one line per
+commit," not a report. A strict single reverse-chronological list with a type label per line
+(no headers) - rejected, loses the at-a-glance scannability that's the whole point of this
+change.
+
+**Consequences:** The changelog no longer shows *when* something happened at a glance — the
+day-by-day story now lives only in the journal, which is where it belonged anyway. Within a
+type group, order is newest-first, but across groups it isn't chronological — a `docs` commit
+from today renders above a `docs` commit from last week, but *below* the entire "Features"
+section regardless of date, since group order follows the fixed `commit_parsers` sequence, not
+recency.
+
 ## 2026-09-10 — Mounts and policies driven from YAML instead of one resource block each
 
 **Context:** `terraform/vault-config/main.tf` declared `vault_mount.secret` and
