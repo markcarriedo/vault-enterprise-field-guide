@@ -33,6 +33,30 @@ convention is enough versus when separate mounts or Namespaces are worth the ext
 complexity. For one app in a sandbox, plain path-based policy is the right amount of
 structure; it won't stay that way forever.
 
+## Vault config as code
+
+The mount and policy above were created by hand with the CLI first, to move fast and verify
+behavior interactively. Once they were working, they moved into `terraform/vault-config/`
+using the [`hashicorp/vault`](https://registry.terraform.io/providers/hashicorp/vault/latest)
+provider — the same pattern already used for the AWS infrastructure, applied to Vault's own
+internal configuration:
+
+- `vault_mount.secret` — the `secret/` KV v2 mount
+- `vault_policy.field_guide_app` — the `field-guide-app` policy, loaded from a `.hcl` file
+  in the repo rather than an inline string, so the policy itself is reviewable in a normal
+  diff
+
+Both were brought under management with `terraform import` rather than recreated, then
+verified with `terraform plan` showing zero drift before anything else was touched — proof
+the Terraform config exactly describes what's actually running, not a guess at it. See
+[Decision log](../reference/decisions.md) for why this moved to Terraform instead of staying
+as tracked-but-manual CLI commands.
+
+The provider takes no credentials in its config block — like the AWS provider elsewhere in
+this repo, it reads `VAULT_ADDR`, `VAULT_TOKEN`, `VAULT_CACERT`, and `VAULT_TLS_SERVER_NAME`
+from the environment, supplied fresh each session after the [SSM tunnel](05-operations.md)
+is up. Nothing is hardcoded or persisted to disk.
+
 ## Gotchas
 
 - `operator init` does not enable any secrets engines — `secret/` (or any other KV mount)

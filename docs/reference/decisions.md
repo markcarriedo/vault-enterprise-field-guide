@@ -15,6 +15,35 @@ Template:
 
 ---
 
+## 2026-09-10 — Vault's own config moved into Terraform, not just AWS infrastructure
+
+**Context:** The KV v2 mount and `field-guide-app` policy were created with plain `vault`
+CLI commands, same session as the AWS work but tracked nowhere - the only record was shell
+history and the journal. Every other piece of this build (VPC, KMS, the cluster itself) is
+Terraform-managed and reviewable in a diff; Vault's internal config wasn't, purely because it
+happened first and moving fast mattered more at the time.
+
+**Decision:** Created `terraform/vault-config/`, using the `hashicorp/vault` provider, to
+manage `vault_mount.secret` and `vault_policy.field_guide_app`. Rather than destroying and
+recreating them, ran `terraform import` against the live resources and confirmed
+`terraform plan` showed zero drift before treating the config as authoritative - proof the
+`.tf` files describe reality exactly, not an approximation of it. The policy itself lives in
+a separate `.hcl` file (`policies/field-guide-app.hcl`), loaded via `file()`, so it reads and
+diffs like the policy document it is rather than an escaped inline string.
+
+**Alternatives considered:** Leaving Vault config as tracked-but-manual CLI steps documented
+in the guide - rejected, since "documented" and "enforced" aren't the same thing, and drift
+between the doc and the live cluster would only be caught by manually re-checking. Recreating
+the resources from scratch under Terraform instead of importing - rejected, since that would
+mean an unnecessary destroy/recreate of a working mount and policy purely for tooling
+convenience.
+
+**Consequences:** Same credential pattern as everywhere else in this repo - the `vault`
+provider takes no config block, reading `VAULT_ADDR`/`VAULT_TOKEN`/`VAULT_CACERT`/
+`VAULT_TLS_SERVER_NAME` from the environment, supplied fresh per session, nothing persisted.
+Any future secrets engine, policy, or auth method should go here rather than being run
+ad hoc against the cluster.
+
 ## 2026-09-10 — Cluster initialized; root token and recovery keys never touched disk or chat
 
 **Context:** `vault operator init` produces a root token and (with KMS auto-unseal) recovery

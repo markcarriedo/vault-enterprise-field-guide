@@ -7,6 +7,22 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-10 — Vault's own configuration joins the rest of the codebase
+
+The KV mount and policy from earlier today existed only as CLI commands and shell history —
+real, working, but invisible next to everything else in this repo, which is Terraform end to
+end. Closed that gap: `terraform/vault-config/` now owns `vault_mount.secret` and
+`vault_policy.field_guide_app` via the `hashicorp/vault` provider, with the policy document
+itself as a separate `.hcl` file rather than an inline string.
+
+Didn't recreate anything — imported the live resources and checked `terraform plan` before
+trusting the config, which caught one real gap: the mount had never had a `description` set.
+Applied that, then a second `plan` came back clean. Same rule as the AWS side: nothing
+proceeds until Terraform's plan matches reality, not the other way around. Same credential
+handling too — the Vault provider takes no config block, just reads `VAULT_ADDR` and friends
+from the environment, supplied fresh through the SSM tunnel each session like everything
+else in this build.
+
 ## 2026-09-10 — First real feature: static secrets, informed by a multi-tenancy comparison
 
 Configuration work started for real. Enabled KV v2 at `secret/`, wrote a test secret,
