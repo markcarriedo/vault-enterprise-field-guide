@@ -72,7 +72,16 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 14. ~~Validate the cluster is up and reachable~~ done — all 3 nodes healthy in the target
     group, confirmed via SSM: `active`, `2.1.0+ent`, `awskms` seal, HA enabled, raft storage,
     correctly `Initialized: false` / `Sealed: true`
-15. Initialize the Vault cluster
+15. ~~Initialize the Vault cluster~~ done — `vault operator init` via an SSM port-forward
+    tunnel (no bastion host, matches the access design from the start); auto-unsealed
+    immediately via KMS; root token + 5 recovery key shares (threshold 3) pushed straight to
+    a new Secrets Manager secret, never written to disk or shown in full. All 3 nodes
+    confirmed as Raft peers — 1 leader, 2 followers, all voters.
+
+**The cluster is live.** 3-node HA Vault Enterprise `2.1.0+ent` on AWS EC2, Integrated
+Storage (Raft), AWS KMS auto-unseal, internal load balancer, private DNS. This was the actual
+goal stated at the top of this page — everything from here is configuration and operations on
+top of a working cluster, not standing it up.
 
 ### Terraform state
 

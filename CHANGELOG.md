@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **feat(changelog): Link the hash to its GitHub commit instead of code-formatting it** ([0cf0176](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0cf0176dc18b161ab414e84d9a4bc05d7d1bebf7))
 - **docs(decisions): Record the changelog-hash / pre-commit-stage switch** ([360729f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/360729ff849da3751cf9a242b689eb2630e242d3))
 - **feat(changelog): Show short commit hash, via pre-commit stage not post** ([ad48b13](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ad48b1342a63370755751fa5054282eed0bd39cc))
 - **fix(changelog): Revert commit-hash addition, self-amend can't converge** ([eeb19f5](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eeb19f5dbebf976debba6d35db8ed5f52d187af1))

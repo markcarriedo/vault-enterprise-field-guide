@@ -7,6 +7,43 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-10 — Initialized. The cluster is actually live.
+
+Ran `vault operator init` for real. Tunneled to a Vault node via SSM port-forwarding straight
+to its own 8200 — no bastion host, the access pattern this whole build was designed around
+from the TLS decision onward. Needed one missing local dependency first: the `aws` CLI's
+`ssm start-session` (interactive/port-forwarding) needs the separate `session-manager-plugin`
+binary, which `ssm send-command` (used earlier for diagnostics) doesn't — installed it and
+tried again.
+
+Init succeeded first try: root token and 5 recovery key shares (threshold 3) generated,
+piped straight into a new Secrets Manager secret, local copy shredded immediately. Never
+printed a full value anywhere. `vault status` confirmed auto-unseal via KMS kicked in
+instantly — sealed went straight to false, no manual step — and `vault operator raft
+list-peers` showed all three nodes as voters, one leader, two followers.
+
+Three-node HA Vault Enterprise, actually running, actually initialized, actually unsealed.
+That was the goal on day one.
+
+## 2026-09-10 — Journal, again: changelog had drifted into overlap
+
+Asked directly - "is changelog the same as journal?" - and the honest answer forced a real
+look at what `CHANGELOG.md` had become: each entry was rendering the full commit body
+underneath a bold summary, which is functionally what a journal entry does, just tied to one
+commit instead of a work session. Stripped the body out of the changelog template entirely
+(back to one bold summary line, nothing else) and brought the journal back for good - covers
+commit-less work, written at story-beat grain instead of one entry per commit, which is what
+keeps this page from just becoming the changelog with more words.
+
+Also chased down a self-inflicted bug the same day: tried adding each commit's short hash to
+its changelog line, using the same self-amending post-commit hook. A commit's hash changes
+every time it's amended - "fix the hash" and "the hash is wrong again" chase each other
+forever. Caught it running in the background, stopped it before it did anything but churn the
+local reflog, and moved the whole hook to the `pre-commit` git stage instead - at that point
+the commit being made doesn't exist yet, so `git-cliff` only ever sees commits whose hashes
+are already permanent. One (fully unavoidable) tradeoff: a commit's own entry doesn't appear
+until the *next* commit runs the hook.
+
 ## 2026-09-10 — Homepage polish, and the cluster is genuinely healthy
 
 Rewrote the homepage with Material grid cards and a real status checklist instead of a stale

@@ -15,6 +15,36 @@ Template:
 
 ---
 
+## 2026-09-10 — Cluster initialized; root token and recovery keys never touched disk or chat
+
+**Context:** `vault operator init` produces a root token and (with KMS auto-unseal) recovery
+key shares — genuinely sensitive, one-time output. Needed a real plan for handling it before
+running the command, not an afterthought.
+
+**Decision:** Tunneled to a Vault node via SSM port-forwarding (`AWS-StartPortForwardingSession`
+directly to the node's own 8200, no bastion — the access pattern this was built for from the
+start). Ran `vault operator init -format=json` straight into a file in the session scratchpad
+(never the repo), immediately piped its contents into a new AWS Secrets Manager secret
+(`vault-enterprise/init-output`), then shredded the local file. Only a redacted confirmation
+(root token's first 8 characters, recovery share count) was ever displayed - never the full
+values.
+
+**Alternatives considered:** Displaying the output directly for the user to save manually -
+rejected; the output would land in this conversation's transcript and shell history, and a
+public-repo project is exactly the wrong place to get casual about that, even though the
+transcript itself isn't the repo. Storing it via Terraform - rejected, `operator init` is a
+one-time imperative operation, not infrastructure with a lifecycle Terraform should own.
+
+**Consequences:** Retrieving the root token now requires reading
+`vault-enterprise/init-output` from Secrets Manager directly (`aws secretsmanager
+get-secret-value`) - there's no copy anywhere else, by design. Local prerequisite discovered
+along the way: SSM port-forwarding needs the `session-manager-plugin` binary installed
+separately from the `aws` CLI itself (`brew install --cask session-manager-plugin`) - the
+plain CLI's own `ssm send-command` (used earlier for diagnostics) doesn't need it, but
+interactive/port-forwarding sessions do.
+
+---
+
 ## 2026-09-10 — Changelog hashes: pre-commit stage instead of post-commit self-amend
 
 **Context:** Wanted each changelog entry to show its commit's short hash for direct

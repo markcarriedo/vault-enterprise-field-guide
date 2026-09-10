@@ -49,7 +49,8 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
       license — all in AWS Secrets Manager / Terraform-managed
 - [x] Vault cluster deployed — 3 nodes healthy behind an internal load balancer, HA via
       Integrated Storage (Raft), running `2.1.0+ent`
-- [ ] Initialize & unseal
+- [x] Initialized & unsealed — auto-unseal via KMS, 3/3 nodes confirmed as Raft peers (1
+      leader, 2 followers), root token + recovery keys secured in Secrets Manager
 - [ ] Configuration — secrets engines, auth methods, policies
 - [ ] Operations runbooks
 
