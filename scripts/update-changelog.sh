@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-# Run as a post-commit hook (see .pre-commit-config.yaml). Regenerates
-# CHANGELOG.md and, if it changed, amends it straight into the commit that
-# just happened rather than creating a separate "update changelog" commit.
+# Run as a pre-commit hook (see .pre-commit-config.yaml). Regenerates
+# CHANGELOG.md from git log and stages it, so the update becomes part of
+# whatever commit is currently being made.
 #
-# Safe from infinite recursion: amending re-triggers this hook, but git-cliff
-# derives its output purely from commit messages (unchanged by --no-edit), so
-# the second pass produces identical content, sees no diff, and exits.
+# Deliberately runs at the pre-commit *stage*, not post-commit: at this point
+# the commit being made doesn't exist yet, so git-cliff only ever sees
+# already-finalized commits whose hashes will never change again. That's
+# what makes it safe to show each entry's short commit hash - a commit's own
+# entry (and hash) simply doesn't appear until the *next* commit, once it
+# exists and is stable. The alternative (post-commit + self-amend) can't
+# show a commit's own hash at all: amending to fix it changes the hash
+# again, forever. See the decision log for the full story.
 set -euo pipefail
 
 if ! command -v git-cliff >/dev/null 2>&1; then
@@ -17,10 +22,4 @@ repo_root=$(git rev-parse --show-toplevel)
 cd "$repo_root"
 
 git-cliff --config cliff.toml -o CHANGELOG.md
-
-if git diff --quiet -- CHANGELOG.md; then
-  exit 0
-fi
-
 git add CHANGELOG.md
-git commit --amend --no-edit -q

@@ -1,33 +1,34 @@
 
 ## 2026-09-10
-- **fix(mkdocs): Stop Journal nav item rendering twice**
-- **feat: Restore the journal, make CHANGELOG.md purely mechanical**
-- **docs(planning): Validate cluster health; feat(mkdocs): polish homepage**
-- **docs(guide): Fill in AWS Infrastructure page**
-- **fix(terraform): Pin vault_version to 2.1.0+ent**
-- **feat(terraform): Scaffold the HVD module invocation**
-- **feat(terraform): TLS via private Route53 zone + self-signed CA**
+- **fix(changelog): Revert commit-hash addition, self-amend can't converge** (`eeb19f5`)
+- **fix(mkdocs): Stop Journal nav item rendering twice** (`3f0fcb0`)
+- **feat: Restore the journal, make CHANGELOG.md purely mechanical** (`e2526a1`)
+- **docs(planning): Validate cluster health; feat(mkdocs): polish homepage** (`5ebf0f6`)
+- **docs(guide): Fill in AWS Infrastructure page** (`664846a`)
+- **fix(terraform): Pin vault_version to 2.1.0+ent** (`48a4206`)
+- **feat(terraform): Scaffold the HVD module invocation** (`0318080`)
+- **feat(terraform): TLS via private Route53 zone + self-signed CA** (`80d9c0b`)
 ## 2026-09-09
-- **feat(changelog): Auto-regenerate via a post-commit hook**
-- **chore: Regenerate CHANGELOG.md, 6 commits behind**
-- **docs(planning): Mark VPC/KMS/license prerequisites done**
-- **feat(terraform): Apply the state-bucket bootstrap, wire up S3 backend**
-- **feat(terraform): Scaffold state-bucket bootstrap and prerequisites config**
-- **fix(mkdocs): Enable pymdownx.tilde so ~~strikethrough~~ actually renders**
-- **docs(planning): Record the full deployment sequence, local-only Terraform**
-- **fix(mkdocs): Render task-list checkboxes instead of literal [ ]**
-- **feat(changelog): Group entries by day instead of [Unreleased]**
-- **docs: Move CHANGELOG.md to the repo root, out of the MkDocs site**
-- **fix(ci): Stop passing --config twice to git-cliff-action**
-- **docs: Replace journal with a git-cliff generated changelog**
-- **style(nav): Drop the right-align CSS, keep Journal in normal tab flow**
-- **style(nav): Reorder to Home/Guide/Reference/Journal, right-align Journal**
-- **docs(journal): Revive the journal, backfilled with the day's work**
-- **docs(planning): Record target environment and AWS survey findings**
-- **docs(planning): Document prerequisites for the HVD Vault Enterprise module**
-- **style(theme): Use Vault's official brand colors and logo**
-- **ci(pages): Deploy docs to GitHub Pages via Actions**
-- **docs(journal): Drop the journal, guide + reference are the published output**
-- **docs(readme): Lead with the Vault content, not MkDocs mechanics**
-- **chore(security): Add gitleaks pre-commit hook**
-- **chore(mkdocs): Scaffold field guide site with Material theme**
+- **feat(changelog): Auto-regenerate via a post-commit hook** (`81807e7`)
+- **chore: Regenerate CHANGELOG.md, 6 commits behind** (`8d1c27d`)
+- **docs(planning): Mark VPC/KMS/license prerequisites done** (`a11c11c`)
+- **feat(terraform): Apply the state-bucket bootstrap, wire up S3 backend** (`e5fa4fa`)
+- **feat(terraform): Scaffold state-bucket bootstrap and prerequisites config** (`01096bf`)
+- **fix(mkdocs): Enable pymdownx.tilde so ~~strikethrough~~ actually renders** (`f0ca5ff`)
+- **docs(planning): Record the full deployment sequence, local-only Terraform** (`ce4c165`)
+- **fix(mkdocs): Render task-list checkboxes instead of literal [ ]** (`0b3c880`)
+- **feat(changelog): Group entries by day instead of [Unreleased]** (`677960c`)
+- **docs: Move CHANGELOG.md to the repo root, out of the MkDocs site** (`40447ae`)
+- **fix(ci): Stop passing --config twice to git-cliff-action** (`bf3b856`)
+- **docs: Replace journal with a git-cliff generated changelog** (`0b73b37`)
+- **style(nav): Drop the right-align CSS, keep Journal in normal tab flow** (`c118a9c`)
+- **style(nav): Reorder to Home/Guide/Reference/Journal, right-align Journal** (`9d219bd`)
+- **docs(journal): Revive the journal, backfilled with the day's work** (`45898d5`)
+- **docs(planning): Record target environment and AWS survey findings** (`c2eff4f`)
+- **docs(planning): Document prerequisites for the HVD Vault Enterprise module** (`ef02810`)
+- **style(theme): Use Vault's official brand colors and logo** (`c7544f2`)
+- **ci(pages): Deploy docs to GitHub Pages via Actions** (`f2cf234`)
+- **docs(journal): Drop the journal, guide + reference are the published output** (`b1ab4b7`)
+- **docs(readme): Lead with the Vault content, not MkDocs mechanics** (`e1bdd8a`)
+- **chore(security): Add gitleaks pre-commit hook** (`137242b`)
+- **chore(mkdocs): Scaffold field guide site with Material theme** (`af68c1d`)
