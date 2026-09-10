@@ -1,5 +1,6 @@
 
 ## 🚀 Features
+- *(changelog)* Group entries by commit type instead of by day ([eb77743](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eb777432829967a2827d204afa3f1c2f8679f850))
 - *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([72c0855](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/72c08554e49eef2ab07dd269b90690d612050eca))
 - *(vault)* Enable KV v2, write a verified least-privilege policy ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))
 - *(vault)* Initialize and unseal the cluster - it's live ([0f0ff6b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0f0ff6b9afe00994f4e1beafaea6a60acb96e564))

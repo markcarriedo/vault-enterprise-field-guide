@@ -1,4 +1,4 @@
-# Vault Enterprise on AWS EC2 — Field Guide
+# Vault Enterprise on AWS — Field Guide
 
 **Read it: <https://markcarriedo.github.io/vault-enterprise-field-guide/>**
 
@@ -27,12 +27,12 @@ Commits follow [Conventional Commits](https://www.conventionalcommits.org)
 deliberately terse and mechanical; the narrative "why" behind a change belongs in
 [`docs/journal/`](docs/journal/index.md) instead, not the commit body — keeping the two from
 overlapping. See [`cliff.toml`](cliff.toml) for how message types map to changelog sections,
-and the [decision log](docs/reference/decisions.md) for the full history of this back-and-forth.
+and the [decision log](docs/reference/decisions.md) for the full reasoning.
 
-`CHANGELOG.md` is committed, but kept in sync automatically — a `post-commit` hook
-(`scripts/update-changelog.sh`, wired up via `pre-commit`, see below) regenerates it after
-every commit and amends the result straight in if anything changed. Requires `git-cliff`
-installed locally:
+`CHANGELOG.md` is committed, but kept in sync automatically — a hook
+(`scripts/update-changelog.sh`, wired up via `pre-commit`, see below) regenerates it and stages
+the result before every commit completes, so the update lands in the same commit with no
+separate "update changelog" step. Requires `git-cliff` installed locally:
 
 ```bash
 brew install git-cliff
@@ -50,9 +50,11 @@ Then open <http://127.0.0.1:8000>.
 
 ## Git hooks
 
-This repo uses [pre-commit](https://pre-commit.com) for two hooks: [gitleaks](https://github.com/gitleaks/gitleaks)
-(blocks commits containing credentials, keys, or tokens) and the changelog auto-update above.
-One install sets up both hook types (`pre-commit` and `post-commit`):
+This repo uses [pre-commit](https://pre-commit.com) for two hooks, both running at the
+`pre-commit` stage (before the commit object exists): the changelog auto-update above, then
+[gitleaks](https://github.com/gitleaks/gitleaks) (blocks commits containing credentials, keys,
+or tokens) — run in that order so gitleaks also scans the freshly regenerated
+`CHANGELOG.md`. One install sets up both:
 
 ```bash
 brew install pre-commit
