@@ -27,3 +27,9 @@ variable "vault_license_file" {
   type        = string
   default     = "/Users/mark/Downloads/vault.hclic"
 }
+
+variable "vault_fqdn" {
+  description = "FQDN for the Vault cluster - resolves only within the VPC via a private Route53 zone, no real domain ownership needed"
+  type        = string
+  default     = "vault.sandbox.internal"
+}

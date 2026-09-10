@@ -1,4 +1,6 @@
 
+## 2026-09-10
+- **feat(terraform): TLS via private Route53 zone + self-signed CA** - Applied cleanly (12 resources): a private hosted zone for vault.sandbox.internal associated with the VPC, a self-signed CA and leaf cert generated via the tls provider, and the three Secrets Manager entries the HVD module expects (cert/key/CA bundle, each base64-encoded). All four prerequisites are now satisfied.  Dropped the real personal domain we'd originally planned to use entirely - it kept stalling on a personal AWS account dependency for no real benefit, since private zones don't validate domain ownership anyway. See decision log.
 ## 2026-09-09
 - **feat(changelog): Auto-regenerate via a post-commit hook** - Manual regeneration already drifted 6 commits behind once - not reliable enough. This hook amends CHANGELOG.md straight into every commit automatically; see decision log for how it avoids infinite recursion.
 - **chore: Regenerate CHANGELOG.md, 6 commits behind** - Forgot to regenerate this alongside the last several commits (the exact drift risk flagged when this became a manual, non-CI step).

@@ -15,6 +15,38 @@ Template:
 
 ---
 
+## 2026-09-10 — TLS: private Route53 zone + self-signed CA instead of a real domain
+
+**Context:** Originally planned to use a real personal domain the user owns, with a public
+DNS record pointing at an internal-facing load balancer and a security-group CIDR restriction
+for actual protection. That kept stalling on a real dependency: that domain's Route53 zone
+lives in a *personal* AWS account, separate from the HashiCorp sandbox, and needed
+re-authenticating into whichever profile hosts it just to check.
+
+**Decision:** Drop the real-domain requirement entirely. Use `vault.sandbox.internal`,
+resolved by a **Route53 private hosted zone** associated with our VPC — private zones don't
+validate domain ownership at all (that only matters for public zones, and for publicly-trusted
+CAs like Let's Encrypt/ACM validating a cert). Cert is a self-signed CA + leaf, generated
+declaratively via the `hashicorp/tls` Terraform provider (not a separate `openssl` script) so
+it lives in state alongside everything else.
+
+**Alternatives considered:** Self-signed cert with no DNS at all, just a local `/etc/hosts`
+entry pointing the name at `127.0.0.1` (since access is via SSM port-forwarding to
+`localhost` anyway) — rejected as further from real practice: no real enterprise Vault
+deployment relies on per-laptop `/etc/hosts` edits, whereas centralized internal DNS
+(private zone, or on-prem DNS with conditional forwarding) is standard. A real enterprise CA
+(ACM Private CA) instead of a self-signed one — rejected on cost (~$400/month) for a sandbox
+with no other use for it; the *architecture* (private zone + PKI-issued cert + trust
+distribution) still matches enterprise practice, only the specific CA choice is a sandbox
+stand-in.
+
+**Consequences:** Fully self-contained in the sandbox account now — no dependency on the
+user's personal AWS accounts at all for this build. Anyone actually connecting to Vault needs
+the self-signed CA cert trusted locally (or `-tls-skip-verify` for casual testing), since it's
+not a publicly-trusted CA.
+
+---
+
 ## 2026-09-09 — Auto-regenerate CHANGELOG.md via a post-commit hook
 
 **Context:** Moving `CHANGELOG.md` to a committed, root-level file (see "move CHANGELOG.md to
