@@ -14,6 +14,11 @@ module "vault" {
   vault_fqdn                = data.terraform_remote_state.prerequisites.outputs.vault_fqdn
   vault_seal_awskms_key_arn = data.terraform_remote_state.prerequisites.outputs.vault_seal_awskms_key_arn
 
+  # Module default (1.17.3+ent) crash-looped against our license - "invalid
+  # module: platform-standard" (a real entitlement mismatch, not a Terraform
+  # bug). Pinning to 2.1.0+ent instead.
+  vault_version = "2.1.0+ent"
+
   # load_balancing_scheme stays the module default (INTERNAL) - access is via
   # SSM port-forwarding from inside the VPC (see decision log), never real
   # internet traffic, so ingress is restricted to in-VPC CIDRs only.

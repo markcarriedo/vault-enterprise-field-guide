@@ -85,6 +85,16 @@ bootstrapping, applied once and rarely touched again); `terraform/prerequisites/
 
 - STS session credentials are **not region-locked** — don't assume the region a token happens
   to work in first is the "correct" one; confirm explicitly.
+- The HVD module's default `vault_version` (`1.17.3+ent`) didn't match our license's
+  entitlements — nodes crash-looped on `invalid module: "platform-standard"`. Not obvious from
+  Terraform (it applies cleanly either way); only shows up once you check `systemctl status
+  vault`/`journalctl -u vault` on an actual node. See decision log.
+- The module's Route53 zone lookup defaults to public-zone semantics —
+  `route53_vault_hosted_zone_is_private = true` is required for a private zone, or you get
+  "no matching Route 53 Hosted Zone found" even though the zone clearly exists.
+- Updating the launch template (e.g. to change `vault_version`) doesn't touch already-running
+  ASG instances — needs a separate `aws autoscaling start-instance-refresh` to actually roll
+  them.
 
 ## References
 

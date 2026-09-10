@@ -15,6 +15,34 @@ Template:
 
 ---
 
+## 2026-09-10 — Pin vault_version to 2.1.0+ent, not the module's 1.17.3+ent default
+
+**Context:** First `terraform apply` of `terraform/vault` succeeded (19 resources), but all
+three nodes crash-looped: `Error initializing core: licensing could not be initialized:
+license validation failed: 1 error occurred: * invalid module: "platform-standard"`. Not an
+infrastructure bug — cloud-init and the install script completed cleanly; `systemctl status
+vault` showed the Vault process itself refusing to start over a license entitlement mismatch
+against the module's default version (`1.17.3+ent`).
+
+**Decision:** Set `vault_version = "2.1.0+ent"` explicitly (module input, overriding its
+default). Confirmed `2.1.0+ent` is a real published release via
+`releases.hashicorp.com/vault/index.json` before pinning it, rather than guessing a version
+string. Applied via `terraform apply` (updates the launch template's rendered user-data) plus
+an ASG instance refresh (`aws autoscaling start-instance-refresh`) — a template change alone
+doesn't touch already-running instances.
+
+**Alternatives considered:** None seriously - once the error pointed at a specific version's
+license/module check, pinning to a version known to match the license was the direct fix.
+Didn't attempt to decode or debug the license file's own contents beyond confirming it's
+neither JWT nor plain base64 (an opaque HashiCorp-proprietary format) - not something worth
+reverse-engineering when the fix was already known.
+
+**Consequences:** `terraform/vault/main.tf` now pins an explicit Vault version instead of
+trusting the module default - worth revisiting if the module's default is later bumped past
+whatever this license actually entitles.
+
+---
+
 ## 2026-09-10 — TLS: private Route53 zone + self-signed CA instead of a real domain
 
 **Context:** Originally planned to use a real personal domain the user owns, with a public
