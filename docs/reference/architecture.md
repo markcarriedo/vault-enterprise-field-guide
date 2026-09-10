@@ -55,7 +55,6 @@ flowchart TB
 
 ## Not yet built
 
-Auth methods (still root-token-only), dynamic secrets, PKI, and Namespaces — see the
-[guide](../guide/index.md) for what's next. Static secrets (KV v2) and a least-privilege
-policy are already live, both Terraform-managed — see
-[Configuration](../guide/04-configuration.md).
+Dynamic secrets, PKI, and Namespaces — see the [guide](../guide/index.md) for what's next.
+Static secrets (KV v2), a least-privilege policy, and an AWS auth method are already live,
+all Terraform-managed — see [Configuration](../guide/04-configuration.md).

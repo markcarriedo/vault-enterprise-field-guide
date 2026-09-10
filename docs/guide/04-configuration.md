@@ -74,6 +74,45 @@ To add another mount or policy, add an entry to the YAML (and a `.hcl` file unde
 `policies/` for a new policy) — `main.tf` itself only changes when a genuinely new *kind*
 of resource needs managing (an auth method, say), not for every new mount or policy.
 
+## AWS auth method
+
+### Goal
+
+Stop using the root token for routine work. The `field-guide-app` policy already existed;
+what was missing was a way for something *other than a human with the root token* to get a
+token scoped to it.
+
+### Steps
+
+1. Considered AppRole first, the more commonly-documented option — rejected for this build
+   specifically: AppRole's `secret_id` needs a trusted distributor (CI/CD, an orchestrator)
+   to vend it safely, and this repo deliberately has none (`terraform` runs locally only, no
+   pipeline — see decision log). Response-wrapping the `secret_id` by hand defeats the point
+   of automating auth in the first place.
+2. Used the **AWS auth method** instead: an EC2 instance authenticates using its own IAM
+   role identity (a signed STS `GetCallerIdentity` request) — no `secret_id`, nothing to vend
+   or leak, since the credential *is* the instance's already-existing IAM role.
+3. Added `vault_auth_backend`, `vault_aws_auth_backend_client`, and
+   `vault_aws_auth_backend_role` to `terraform/vault-config/auth.tf` — bound to the Vault
+   nodes' own IAM role (looked up by name via a Terraform data source, not by ARN, so the
+   AWS account ID never appears literally in a committed file), `token_policies =
+   ["field-guide-app"]`, `auth_type = "iam"`. There's no separate "app" instance in this
+   sandbox, so a Vault node's own role doubles as the client proving the pattern end-to-end.
+4. **Verified end-to-end from the instance itself** — IAM-based login only works when the
+   *caller* signs its own request, so this couldn't be tested from a laptop; had to SSM onto
+   a Vault node and run `vault login -method=aws role=field-guide-app` there. Succeeded on
+   the first try: token came back with `["default", "field-guide-app"]` policies attached,
+   no manual token creation involved. Same rigor as the KV v2 policy: read the secret it's
+   scoped to (succeeded), write to that same path (403), read an unrelated path (403).
+
+### Why AWS auth over AppRole here
+
+AppRole's model assumes something trusted already exists to hand out `secret_id`s safely
+(response-wrapped, over CI, etc.) — this repo has no such automation by design. AWS auth
+sidesteps the problem instead of solving it: the credential is the instance's IAM role,
+already scoped by IAM, already rotated by AWS, nothing new to distribute. See
+[decision log](../reference/decisions.md) for the full comparison.
+
 ## Gotchas
 
 - `operator init` does not enable any secrets engines — `secret/` (or any other KV mount)
@@ -81,9 +120,14 @@ of resource needs managing (an auth method, say), not for every new mount or pol
 - Testing a policy by reading it isn't enough — a policy that *parses* isn't the same as a
   policy that *enforces* correctly. Always test with an actual token scoped to it, not the
   root token, before trusting it.
+- AWS IAM-type auth can't be tested from a machine other than the one authenticating — the
+  login request has to be signed by the caller's own credentials. Testing from a laptop with
+  different AWS credentials just proves the *wrong* identity can't log in, not that the right
+  one can.
 
 ## References
 
 - [KV Secrets Engine v2 (Vault docs)](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2)
 - [Policies (Vault docs)](https://developer.hashicorp.com/vault/docs/concepts/policies)
+- [AWS Auth Method (Vault docs)](https://developer.hashicorp.com/vault/docs/auth/aws)
 - [Patterns: multi-team static secrets](../reference/patterns.md)

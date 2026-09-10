@@ -19,3 +19,6 @@ Terms as we encounter them.
 | KV v2 | Vault's versioned key-value secrets engine — every write creates a new version rather than overwriting, with metadata (created time, deletion state) tracked per version. |
 | ACL policy | Path-based access rules (`path "secret/data/x/*" { capabilities = [...] }`) attached to tokens/identities — Vault's core authorization mechanism. |
 | Namespace | An Enterprise feature: a fully isolated administrative boundary (own policies, auth methods, secrets engines, audit) within one physical cluster — see [Patterns](patterns.md). |
+| Auth method | A way to prove identity to Vault and receive a token with policies attached — the root token isn't one; AppRole and AWS auth are. |
+| AppRole | An auth method built around a `role_id` (like a username) and `secret_id` (like a password) — needs a trusted way to distribute the `secret_id` safely. |
+| AWS auth method | An auth method where an EC2 instance authenticates using its own IAM role identity (a signed STS `GetCallerIdentity` request) — no separate secret to generate or distribute. |

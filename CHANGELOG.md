@@ -18,6 +18,7 @@
 - *(terraform)* Pin vault_version to 2.1.0+ent ([48a4206](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/48a4206b701fdcb0567bcf83b0bf830568c87c1e))
 
 ### 📚 Documentation
+- Stop naming the internal credential broker by name ([9f6972f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/9f6972fbb25dcc71972176ccfd3fd4f996e69fee))
 - Stop naming the personal domain we considered and dropped ([0fb66c2](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0fb66c24885c1f2add13345b853257324e0ca0bc))
 - *(readme)* Shorten title, fix stale hook/changelog description ([772d299](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/772d29983ae6725b536f1828177168d7aa1bf6b9))
 - Tone pass for expert narration, fix stale architecture status ([c79d5b1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/c79d5b1a0e42bd945ae9d500850f8fa80d9fe621))

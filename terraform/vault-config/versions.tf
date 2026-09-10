@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/vault"
       version = "~> 5.11"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
   }
 
   backend "s3" {
@@ -22,3 +26,10 @@ terraform {
 # nothing persisted, supplied fresh per session. Requires the SSM tunnel from
 # guide/05-operations.md to be running first.
 provider "vault" {}
+
+# Only used to look up the Vault nodes' own IAM role by name (see auth.tf) -
+# same credential pattern as every other AWS provider block in this repo:
+# no profile, no keys, just the env vars exported for the session.
+provider "aws" {
+  region = "ap-southeast-2"
+}

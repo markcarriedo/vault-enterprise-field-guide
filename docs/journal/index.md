@@ -7,6 +7,28 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-10 — Off the root token: AWS auth method, not AppRole
+
+Finally closed a gap that had been sitting there since the first KV v2 test: every real
+operation this whole build had used the root token. Looked at AppRole first, since it's the
+usual answer - talked through how to vend its `secret_id` safely, and the honest answer was
+"there isn't a good one here," since a `secret_id` needs a trusted distributor and this repo
+runs Terraform locally with no CI/CD by design. Response-wrapping it by hand each time would
+work but mostly just moves the manual-root-token problem somewhere else.
+
+Went with the AWS auth method instead - the EC2 instance's own IAM role is the credential, so
+there's no `secret_id` to invent a safe distribution story for at all. Wired up
+`terraform/vault-config/auth.tf` (auth backend, client config, and a role bound to the Vault
+node's own IAM role - no separate "app" instance exists in this sandbox, so it stood in as
+the client). Looked the role up by name via a data source rather than hardcoding its ARN, so
+the account ID never lands in a committed file, same rule as everywhere else here.
+
+Couldn't test it from a laptop - IAM-type login has to be signed by the authenticating
+identity itself, so proving it meant SSM'ing onto a Vault node and logging in from there.
+Worked first try: token came back scoped to `field-guide-app`, no human, no root token. Ran
+the same read/write/unrelated-path proof as the original KV v2 policy test rather than trusting
+that "login succeeded" was enough on its own - write and the unrelated path both came back 403.
+
 ## 2026-09-10 — Changelog redo: back to day headers, now nested with type
 
 Revisited the changelog grouping from earlier today. Switching to pure type-grouping

@@ -15,6 +15,48 @@ Template:
 
 ---
 
+## 2026-09-10 — AWS auth method instead of AppRole, to stop using the root token
+
+**Context:** Everything so far — configuring mounts, policies, testing enforcement — used the
+root token from `operator init`. Fine for early sandbox work, explicitly not fine to keep
+doing (see the glossary's own note on root tokens). Needed a real auth method so something
+other than a human could get a scoped token.
+
+**Decision:** AWS auth method, not AppRole. An EC2 instance authenticates using its own IAM
+role identity (a signed STS `GetCallerIdentity` request, `auth_type = "iam"`) — the
+credential *is* the instance's already-existing role, nothing new to generate or distribute.
+Added `vault_auth_backend`, `vault_aws_auth_backend_client`, and
+`vault_aws_auth_backend_role` to `terraform/vault-config/auth.tf`, bound via
+`bound_iam_principal_arns` to a Vault node's own IAM role (there's no separate "app" instance
+in this sandbox, so it doubles as the client proving the pattern), `token_policies =
+["field-guide-app"]`. The role is looked up with `data "aws_iam_role"` by **name**, not ARN —
+the AWS account ID is structurally part of any IAM ARN, and this repo has never committed one;
+resolving it dynamically at apply time keeps that true here too. `resolve_aws_unique_ids` set
+to `false` deliberately — the default `true` would need `iam:GetRole`/`iam:GetUser`
+permission added to the Vault node's own role just for this, not worth it for a direct,
+stable ARN binding in a sandbox.
+
+**Alternatives considered:** AppRole — Vault's more commonly-documented answer to "give an
+app a token," and genuinely the right default in most environments. Rejected specifically
+here: AppRole's `secret_id` needs a trusted distributor to hand it out safely (CI/CD
+injecting it, an orchestrator response-wrapping it), and this repo deliberately runs
+Terraform locally only, with no pipeline (see the "local-only Terraform" decision). Without
+that automation, "safely vending a secret_id" reduces to a human doing it by hand, which
+defeats the reason to automate auth in the first place. AWS auth doesn't have this problem:
+there's no secret to vend, since the instance's IAM role already *is* the credential.
+
+**Consequences:** Verified end-to-end, not just applied — IAM-type login has to be tested
+from the authenticating instance itself, since the request must be signed by the caller's own
+credentials; a laptop with different AWS credentials can only prove the wrong identity is
+rejected, not that the right one works. SSM'd onto a Vault node, ran `vault login
+-method=aws role=field-guide-app`, got a token with `field-guide-app` attached, then repeated
+the same enforcement proof as the KV v2 policy (read succeeds, write and an unrelated path
+both 403). This pattern only works for clients that are themselves EC2 instances with a real
+IAM identity; a genuinely external or non-AWS client would still need AppRole (or another
+method) and would have to solve the `secret_id`-vending problem for real.
+
+---
+
 ## 2026-09-10 — Changelog nested: day headers, then commit type within each day
 
 **Context:** Grouping purely by commit type (see below) traded away something worth keeping —
