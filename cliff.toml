@@ -23,14 +23,29 @@ body = """
     {% endfor %}
 {% endfor %}\
 {% else %}\
-    {%- for entry in commits | commit_groups(groups=commit_parsers_groups) %}
-## {{ entry.group | striptags | trim | upper_first }}
-        {%- for commit in entry.commits %}
-- {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
-    {% if commit.breaking %}[**breaking**] {% endif %}\
-    {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/{{ commit.id }}))
-        {%- endfor %}
-    {% endfor %}\
+    {%- set_global seen_day = "" %}\
+    {%- for commit in commits %}\
+        {%- set day = commit.author.timestamp | date(format="%Y-%m-%d") %}\
+        {%- if day != seen_day %}
+## {{ day }}
+            {%- set_global seen_day = day %}\
+            {%- set_global day_commits = [] %}\
+            {%- for c in commits %}\
+                {%- set c_day = c.author.timestamp | date(format="%Y-%m-%d") %}\
+                {%- if c_day == day %}\
+                    {%- set_global day_commits = day_commits | concat(with=[c]) %}\
+                {%- endif %}\
+            {%- endfor %}\
+            {%- for entry in day_commits | commit_groups(groups=commit_parsers_groups) %}
+### {{ entry.group | striptags | trim | upper_first }}
+                {%- for c in entry.commits %}
+- {% if c.scope %}*({{ c.scope }})* {% endif %}\
+    {% if c.breaking %}[**breaking**] {% endif %}\
+    {{ c.message | upper_first }} ([{{ c.id | truncate(length=7, end="") }}](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/{{ c.id }}))
+                {%- endfor %}
+            {% endfor %}\
+        {%- endif %}
+    {%- endfor %}\
 {% endif %}\
 """
 # Remove leading and trailing whitespaces from the changelog's body.

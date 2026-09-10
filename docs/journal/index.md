@@ -7,6 +7,17 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-10 — Changelog redo: back to day headers, now nested with type
+
+Revisited the changelog grouping from earlier today. Switching to pure type-grouping
+(Features, Bug Fixes, Docs, ...) fixed the original complaint — no more hunting through every
+day for "what changed on the Terraform side" — but it also threw away the one thing day
+grouping was good for: knowing *when* something happened without leaving the file. Nested both:
+day headers outer, type headers inner, newest-first throughout. Took a bit more Tera template
+work than the flat version (`commit_groups` only groups whatever list you hand it, so each
+day's commits have to be filtered out by hand first), but keeping both axes was worth the extra
+template complexity.
+
 ## 2026-09-10 — Mounts and policies move from HCL blocks to a YAML list
 
 Anticipated this directory growing past two resources, so followed up the initial import with

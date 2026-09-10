@@ -1,5 +1,6 @@
 
-## 🚀 Features
+## 2026-09-10
+### 🚀 Features
 - *(changelog)* Group entries by commit type instead of by day ([eb77743](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eb777432829967a2827d204afa3f1c2f8679f850))
 - *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([72c0855](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/72c08554e49eef2ab07dd269b90690d612050eca))
 - *(vault)* Enable KV v2, write a verified least-privilege policy ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))
@@ -9,20 +10,14 @@
 - Restore the journal, make CHANGELOG.md purely mechanical ([e2526a1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e2526a1bf8a70a4c05cfb556d440467c4b599849))
 - *(terraform)* Scaffold the HVD module invocation ([0318080](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/03180803db866d648a19b64a45654385e8bfde44))
 - *(terraform)* TLS via private Route53 zone + self-signed CA ([80d9c0b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/80d9c0b11f1936731506ad41ab91bed439754af8))
-- *(changelog)* Auto-regenerate via a post-commit hook ([81807e7](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/81807e71a2349ae83a5292b988338a1746265d95))
-- *(terraform)* Apply the state-bucket bootstrap, wire up S3 backend ([e5fa4fa](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e5fa4faf166421b1dc73d0a021f1021ba4671b9d))
-- *(terraform)* Scaffold state-bucket bootstrap and prerequisites config ([01096bf](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/01096bf11692a0822cb54232c2b41e29ea70784e))
-- *(changelog)* Group entries by day instead of [Unreleased] ([677960c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/677960c30344dbe8d7075e31d054a4f0c0b689c7))
 
-## 🐛 Bug Fixes
+### 🐛 Bug Fixes
 - *(changelog)* Revert commit-hash addition, self-amend can't converge ([eeb19f5](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eeb19f5dbebf976debba6d35db8ed5f52d187af1))
 - *(mkdocs)* Stop Journal nav item rendering twice ([3f0fcb0](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3f0fcb04ee5972367d169f48087f8af2801af71a))
 - *(terraform)* Pin vault_version to 2.1.0+ent ([48a4206](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/48a4206b701fdcb0567bcf83b0bf830568c87c1e))
-- *(mkdocs)* Enable pymdownx.tilde so ~~strikethrough~~ actually renders ([f0ca5ff](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/f0ca5ff120f1a8bdfc9cf5a903c164da203415a0))
-- *(mkdocs)* Render task-list checkboxes instead of literal [ ] ([0b3c880](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0b3c8809bdc8bcb5aab6a0aea7f58121e7878864))
-- *(ci)* Stop passing --config twice to git-cliff-action ([bf3b856](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/bf3b8560c851a9f6a5208160b247191f153862aa))
 
-## 📚 Documentation
+### 📚 Documentation
+- *(readme)* Shorten title, fix stale hook/changelog description ([68950c1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/68950c13dcf5af88c8999995bbf9337b439d1386))
 - Tone pass for expert narration, fix stale architecture status ([0d0a346](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0d0a3461993a4809b138b1b1a905ac604eed424f))
 - *(journal)* Simplify to "a government agency", drop "tax" ([5e2c158](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5e2c15864435629fd4f20d7a2b5ab0e95264c7d0))
 - *(journal)* Remove named org from example, fix self-deprecating tone ([35902b4](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/35902b45329dcd94ff21a322397d05befc456538))
@@ -32,6 +27,23 @@
 - *(decisions)* Record the changelog-hash / pre-commit-stage switch ([360729f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/360729ff849da3751cf9a242b689eb2630e242d3))
 - *(planning)* Validate cluster health; feat(mkdocs): polish homepage ([5ebf0f6](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5ebf0f67ce1deabedf4db48920731894d6114c53))
 - *(guide)* Fill in AWS Infrastructure page ([664846a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/664846a7859a9352251fda6dad3eee7064b37445))
+
+### 🚜 Refactor
+- *(vault)* Drive mounts and policies from vault-config.yaml ([7909341](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/7909341f25115fcf6d53a92c7379ab41a2628862))
+
+## 2026-09-09
+### 🚀 Features
+- *(changelog)* Auto-regenerate via a post-commit hook ([81807e7](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/81807e71a2349ae83a5292b988338a1746265d95))
+- *(terraform)* Apply the state-bucket bootstrap, wire up S3 backend ([e5fa4fa](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e5fa4faf166421b1dc73d0a021f1021ba4671b9d))
+- *(terraform)* Scaffold state-bucket bootstrap and prerequisites config ([01096bf](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/01096bf11692a0822cb54232c2b41e29ea70784e))
+- *(changelog)* Group entries by day instead of [Unreleased] ([677960c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/677960c30344dbe8d7075e31d054a4f0c0b689c7))
+
+### 🐛 Bug Fixes
+- *(mkdocs)* Enable pymdownx.tilde so ~~strikethrough~~ actually renders ([f0ca5ff](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/f0ca5ff120f1a8bdfc9cf5a903c164da203415a0))
+- *(mkdocs)* Render task-list checkboxes instead of literal [ ] ([0b3c880](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0b3c8809bdc8bcb5aab6a0aea7f58121e7878864))
+- *(ci)* Stop passing --config twice to git-cliff-action ([bf3b856](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/bf3b8560c851a9f6a5208160b247191f153862aa))
+
+### 📚 Documentation
 - *(planning)* Mark VPC/KMS/license prerequisites done ([a11c11c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/a11c11c45ebb2bfb7fe7fb8c62c54c62f9141ab1))
 - *(planning)* Record the full deployment sequence, local-only Terraform ([ce4c165](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ce4c1653d6bb800208cf97f1250f97f189310b48))
 - Move CHANGELOG.md to the repo root, out of the MkDocs site ([40447ae](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/40447ae185609d01abf783c82784f334dc103c83))
@@ -42,15 +54,12 @@
 - *(journal)* Drop the journal, guide + reference are the published output ([b1ab4b7](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/b1ab4b782b826aa87eb3beb4a236d5028da5f00d))
 - *(readme)* Lead with the Vault content, not MkDocs mechanics ([e1bdd8a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e1bdd8ab23ea581f16263e83cc528ba5a82b1a22))
 
-## 🚜 Refactor
-- *(vault)* Drive mounts and policies from vault-config.yaml ([7909341](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/7909341f25115fcf6d53a92c7379ab41a2628862))
-
-## 🎨 Styling
+### 🎨 Styling
 - *(nav)* Drop the right-align CSS, keep Journal in normal tab flow ([c118a9c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/c118a9c1d6abf233b767f9d9307e3a4a0f127d4c))
 - *(nav)* Reorder to Home/Guide/Reference/Journal, right-align Journal ([9d219bd](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/9d219bdf51fbb4385a96b0711858e9c51581d636))
 - *(theme)* Use Vault's official brand colors and logo ([c7544f2](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/c7544f2a0ad6179a0ef56de9bba86a3399ca8c16))
 
-## ⚙️ Miscellaneous Tasks
+### ⚙️ Miscellaneous Tasks
 - Regenerate CHANGELOG.md, 6 commits behind ([8d1c27d](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/8d1c27dddb9a481001a7eff242a69631197276cd))
 - *(pages)* Deploy docs to GitHub Pages via Actions ([f2cf234](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/f2cf23481a68726750cec70fa28d6a2337f38af4))
 - *(security)* Add gitleaks pre-commit hook ([137242b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/137242b778e733893a1891b75cb1bc4da3628caf))

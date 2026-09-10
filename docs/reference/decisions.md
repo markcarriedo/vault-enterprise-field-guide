@@ -15,7 +15,30 @@ Template:
 
 ---
 
-## 2026-09-10 — Changelog grouped by commit type instead of by day
+## 2026-09-10 — Changelog nested: day headers, then commit type within each day
+
+**Context:** Grouping purely by commit type (see below) traded away something worth keeping —
+with no date information left anywhere in `CHANGELOG.md`, there was no way to tell at a glance
+what happened on a given day without cross-referencing the journal or `git log`.
+
+**Decision:** Nest both axes: `## YYYY-MM-DD` day headers (newest first), each containing
+`### <type>` subheadings (🚀 Features, 🐛 Bug Fixes, etc.) with that day's commits of that
+type, newest-first within the group. Implemented by filtering `commits` down to one day's
+commits (`concat`-building a list across a manual loop, since `commit_groups` needs a
+pre-filtered list to group), then running the existing `commit_groups(groups=
+commit_parsers_groups)` on that subset per day.
+
+**Alternatives considered:** Type-only grouping (the immediately preceding version of this
+file) - reconsidered same-day once it became clear losing dates entirely made the file harder
+to scan, not easier. A strict single reverse-chronological list with a type label per line -
+still rejected for the same reason as before: loses at-a-glance scannability by type.
+
+**Consequences:** Slightly more complex Tera template (a manual per-day filter step, since
+`commit_groups` only groups a list you hand it, not the whole commit history at once) — worth
+it for keeping both axes. Within a day, groups still order by the fixed `commit_parsers`
+sequence, not recency, same tradeoff as the type-only version.
+
+## 2026-09-10 — Changelog grouped by commit type instead of by day (superseded, see above)
 
 **Context:** `CHANGELOG.md` grouped entries under a `## YYYY-MM-DD` heading per day, newest
 day first. Scanning for "what's changed on the Terraform side" or "what docs changed" meant
@@ -28,18 +51,12 @@ Features, 🐛 Bug Fixes, 📚 Documentation, etc. — the emoji/label groups we
 in `commit_parsers`, just unused since this repo doesn't tag releases). `sort_commits =
 "newest"` keeps each group newest-first, same as before.
 
-**Alternatives considered:** Keeping day headers as a second grouping level nested under
-type - rejected as needless nesting for a file whose stated job is "mechanical, one line per
-commit," not a report. A strict single reverse-chronological list with a type label per line
-(no headers) - rejected, loses the at-a-glance scannability that's the whole point of this
-change.
+**Alternatives considered:** A strict single reverse-chronological list with a type label per
+line (no headers) - rejected, loses the at-a-glance scannability that's the whole point of
+this change.
 
-**Consequences:** The changelog no longer shows *when* something happened at a glance — the
-day-by-day story now lives only in the journal, which is where it belonged anyway. Within a
-type group, order is newest-first, but across groups it isn't chronological — a `docs` commit
-from today renders above a `docs` commit from last week, but *below* the entire "Features"
-section regardless of date, since group order follows the fixed `commit_parsers` sequence, not
-recency.
+**Consequences:** Revisited the same day — see the entry above, which nests day headers back
+in above the type headers rather than dropping dates entirely.
 
 ## 2026-09-10 — Mounts and policies driven from YAML instead of one resource block each
 
