@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **fix(mkdocs): Stop Journal nav item rendering twice**
 - **feat: Restore the journal, make CHANGELOG.md purely mechanical**
 - **docs(planning): Validate cluster health; feat(mkdocs): polish homepage**
 - **docs(guide): Fill in AWS Infrastructure page**
