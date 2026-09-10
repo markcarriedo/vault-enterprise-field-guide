@@ -7,7 +7,7 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
-## 2026-09-10 — First real feature: static secrets, and a detour into multi-tenancy
+## 2026-09-10 — First real feature: static secrets, informed by a multi-tenancy comparison
 
 Configuration work started for real. Enabled KV v2 at `secret/`, wrote a test secret,
 confirmed versioning works. The part that actually mattered: wrote a least-privilege policy
@@ -16,14 +16,14 @@ secret but got a clean 403 trying to write, and another 403 reaching an unrelate
 Reading a policy back after writing it just confirms the HCL parsed; it says nothing about
 whether the rules actually bite.
 
-Went on a real tangent mid-task: asked about the recommended pattern for multiple teams
-sharing static secrets, which turned into a proper comparison of three approaches
-(path-namespaced single mount, separate mounts per team, Enterprise Namespaces) grounded in
-concrete examples - a bank, the ATO. Worth writing up somewhere more permanent than a chat
-transcript, so it became `reference/patterns.md` - the first page in this guide that's
-explicitly conceptual rather than "what we did," following through on a rule I'd suggested a
-few turns earlier: split guide content from reference content, but only once there's actually
-something guide-shaped and something reference-shaped, not preemptively.
+Before writing the policy, worked through the recommended pattern for multiple teams sharing
+static secrets - a comparison of three approaches (path-namespaced single mount, separate
+mounts per team, Enterprise Namespaces) grounded in concrete examples: a bank, and a large
+government tax agency. That was worth a permanent home rather than staying in conversation, so
+it became `reference/patterns.md` - the first page in this guide that's explicitly conceptual
+rather than "what we did," following the same rule established earlier: split guide content
+from reference content once there's actually something guide-shaped and something
+reference-shaped, not preemptively.
 
 The multi-team discussion's real payoff: Namespaces aren't really about "does this team know
 Vault" - they're about compliance and legal-entity boundaries (PCI scope, a subsidiary under
@@ -47,24 +47,24 @@ list-peers` showed all three nodes as voters, one leader, two followers.
 Three-node HA Vault Enterprise, actually running, actually initialized, actually unsealed.
 That was the goal on day one.
 
-## 2026-09-10 — Journal, again: changelog had drifted into overlap
+## 2026-09-10 — Changelog and journal: drawing a clean line
 
-Asked directly - "is changelog the same as journal?" - and the honest answer forced a real
-look at what `CHANGELOG.md` had become: each entry was rendering the full commit body
-underneath a bold summary, which is functionally what a journal entry does, just tied to one
-commit instead of a work session. Stripped the body out of the changelog template entirely
-(back to one bold summary line, nothing else) and brought the journal back for good - covers
+Asked directly - "is changelog the same as journal?" - which prompted a proper look at what
+`CHANGELOG.md` had become: each entry was rendering the full commit body underneath a bold
+summary, which is functionally what a journal entry does, just tied to one commit instead of a
+work session. Stripped the body out of the changelog template entirely (back to one bold
+summary line, nothing else) and made the journal the permanent narrative home - covers
 commit-less work, written at story-beat grain instead of one entry per commit, which is what
 keeps this page from just becoming the changelog with more words.
 
-Also chased down a self-inflicted bug the same day: tried adding each commit's short hash to
-its changelog line, using the same self-amending post-commit hook. A commit's hash changes
-every time it's amended - "fix the hash" and "the hash is wrong again" chase each other
-forever. Caught it running in the background, stopped it before it did anything but churn the
-local reflog, and moved the whole hook to the `pre-commit` git stage instead - at that point
-the commit being made doesn't exist yet, so `git-cliff` only ever sees commits whose hashes
-are already permanent. One (fully unavoidable) tradeoff: a commit's own entry doesn't appear
-until the *next* commit runs the hook.
+Also caught and fixed a structural bug introduced the same day: adding each commit's short
+hash to its changelog line, using the same self-amending post-commit hook, doesn't converge -
+a commit's hash changes every time it's amended, so "fix the hash" and "the hash is wrong
+again" chase each other forever. Caught it running in the background, stopped it before it did
+anything but churn the local reflog, and moved the whole hook to the `pre-commit` git stage
+instead - at that point the commit being made doesn't exist yet, so `git-cliff` only ever sees
+commits whose hashes are already permanent. One (structurally unavoidable) tradeoff: a
+commit's own entry doesn't appear until the *next* commit runs the hook.
 
 ## 2026-09-10 — Homepage polish, and the cluster is genuinely healthy
 
@@ -125,17 +125,17 @@ for a sandbox), `ec2_allow_ssm = true` so there's no need for a separate bastion
 balancer ingress restricted to the VPC's own CIDR — access was always going to be via SSM
 port-forwarding from inside the VPC, never real internet traffic.
 
-## 2026-09-10 (crossing over from 2026-09-09) — Changelog automation, twice
+## 2026-09-10 (crossing over from 2026-09-09) — Changelog automation
 
-First automated `CHANGELOG.md` regeneration with a `post-commit` hook — then immediately
-proved why that mattered: it wasn't wired up for one stretch of commits and drifted 6 behind
-almost right away. Fixed by making the hook self-amend the changelog into the very commit that
-triggered it (safe from infinite recursion, since re-triggering the hook on an unchanged
-message produces identical output the second time). Also spent a while iterating the actual
-format — grouped by day instead of a permanent "[Unreleased]" label, ordered newest-first to
-match `git log`, tightened into one-line-per-commit instead of a loose paragraph — before
-eventually removing the commit body from the rendered output entirely, once the journal came
-back and having both carry the same reasoning became pure duplication.
+Manual `CHANGELOG.md` regeneration drifted 6 commits behind almost immediately — exactly the
+risk flagged when that became a manual step. Fixed it properly rather than just catching up by
+hand: a `post-commit` hook that self-amends the changelog into the very commit that triggered
+it, safe from infinite recursion since re-triggering the hook on an unchanged commit message
+produces identical output the second time around. Also iterated the actual format — grouped by
+day instead of a permanent "[Unreleased]" label, ordered newest-first to match `git log`,
+tightened into one-line-per-commit instead of a loose paragraph — before eventually removing
+the commit body from the rendered output entirely, once the journal came back and having both
+carry the same reasoning became pure duplication.
 
 ## 2026-09-09 — Prerequisites applied: VPC, KMS key, license
 
@@ -183,17 +183,17 @@ Added a GitHub Actions workflow to build and deploy the site to GitHub Pages on 
 `main`, using the native Pages Actions flow (no `gh-pages` branch to manage). Live at
 <https://markcarriedo.github.io/vault-enterprise-field-guide/>.
 
-## 2026-09-09 — Journal dropped, then revived (the first time)
+## 2026-09-09 — Settling where the journal lives
 
-Briefly dropped this journal entirely in favor of treating `docs/guide/` + `docs/reference/`
-as the sole published output. Reconsidered — a chronological log alongside the guide is worth
-keeping. Considered a GitHub Wiki for it (keeps it fully out of the MkDocs build) but the
-wiki's git repo can't be initialized without first creating a page through the GitHub web UI,
-which doesn't fit an automated workflow — reverted to keeping the journal here.
+Considered dropping the journal entirely in favor of treating `docs/guide/` +
+`docs/reference/` as the sole published output, then a GitHub Wiki as a way to keep raw notes
+fully outside the MkDocs build — ruled out because a wiki's git repo can't be initialized
+without first creating a page through the GitHub web UI, which doesn't fit an automated
+workflow. Kept it here, in `docs/journal/`, as part of the site.
 
-(It got dropped a *second* time not long after this, in favor of a git-cliff changelog with
-reasoning folded into commit bodies — and came back again once that started overlapping with
-the changelog rather than replacing it. Third time's the charm, hopefully.)
+(The question of where reasoning should live came up again once the changelog was built out
+further — see the entries above for how that settled: a clean division where the changelog
+stays mechanical and the journal carries the narrative.)
 
 ## 2026-09-09 — Public repo, secret scanning
 

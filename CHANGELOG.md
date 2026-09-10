@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **feat(vault): Enable KV v2, write a verified least-privilege policy** ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))
 - **docs(guide): Remove stale stub chapters, renumber, update glossary** ([d8474c1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/d8474c13bcc61a291d78b7d0de1396d92eebdc49))
 - **docs(guide): Document the manual cluster-connect runbook** ([246c490](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/246c4908afdbd39b1c50ea4ef822e5adeaac2f4a))
 - **docs: Fill in Installation guide page and real Architecture diagram** ([2f8cdd9](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/2f8cdd9421cb183c66a156561676fa53d2ab31e6))
