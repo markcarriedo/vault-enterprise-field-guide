@@ -59,11 +59,14 @@ cloud credentials are local-machine concerns, not pipeline concerns.
 6. ~~Bootstrap the Terraform state bucket~~ done (`terraform/bootstrap/`)
 7. ~~Deploy the prerequisite resources~~ done — VPC, KMS key, license secret, TLS secrets, and
    the private zone (39 resources total) applied via `terraform/prerequisites/`, state in S3
-8. Obtain the HVD module (`hashicorp/vault-enterprise-hvd/aws`)
+8. ~~Obtain the HVD module~~ done — `hashicorp/vault-enterprise-hvd/aws` `~> 0.4`, in
+   `terraform/vault/`
 9. ~~Configure cloud credentials~~ done (env vars, no profile — see decision log)
-10. Initialize the Terraform workspace for the HVD module
-11. Input variables (VPC/subnet IDs, KMS key ARN, Secrets Manager ARNs, FQDN) from step 7's output
-12. `terraform plan`
+10. ~~Initialize the Terraform workspace~~ done
+11. ~~Input variables~~ done — via `data.terraform_remote_state` reading step 7's outputs
+    directly, no manual ARN copying; 3 nodes (module default is 6), SSM access instead of a
+    bastion, LB ingress restricted to the VPC CIDR
+12. ~~`terraform plan`~~ done — 19 resources, reviewed, **not yet applied**
 13. `terraform apply`
 14. Validate the cluster is up and reachable
 15. Initialize the Vault cluster
