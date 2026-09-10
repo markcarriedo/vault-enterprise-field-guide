@@ -18,8 +18,8 @@ whether the rules actually bite.
 
 Before writing the policy, worked through the recommended pattern for multiple teams sharing
 static secrets - a comparison of three approaches (path-namespaced single mount, separate
-mounts per team, Enterprise Namespaces) grounded in concrete examples: a bank, and a large
-government tax agency. That was worth a permanent home rather than staying in conversation, so
+mounts per team, Enterprise Namespaces) grounded in concrete examples: a bank, and a
+government agency. That was worth a permanent home rather than staying in conversation, so
 it became `reference/patterns.md` - the first page in this guide that's explicitly conceptual
 rather than "what we did," following the same rule established earlier: split guide content
 from reference content once there's actually something guide-shaped and something
