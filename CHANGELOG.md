@@ -1,36 +1,40 @@
 
 ## 2026-09-10
 ### 🚀 Features
-- *(changelog)* Nest by day then commit type ([ba99408](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ba99408e51dcdfe214f558a346c8bae30f07d8e1))
-- *(changelog)* Group entries by commit type instead of by day ([eb77743](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eb777432829967a2827d204afa3f1c2f8679f850))
-- *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([72c0855](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/72c08554e49eef2ab07dd269b90690d612050eca))
-- *(vault)* Enable KV v2, write a verified least-privilege policy ([3d7d2b8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3d7d2b801129accc1c914db2f4cd9b83dae05ee4))
-- *(vault)* Initialize and unseal the cluster - it's live ([0f0ff6b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0f0ff6b9afe00994f4e1beafaea6a60acb96e564))
-- *(changelog)* Link the hash to its GitHub commit instead of code-formatting it ([0cf0176](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0cf0176dc18b161ab414e84d9a4bc05d7d1bebf7))
-- *(changelog)* Show short commit hash, via pre-commit stage not post ([ad48b13](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ad48b1342a63370755751fa5054282eed0bd39cc))
-- Restore the journal, make CHANGELOG.md purely mechanical ([e2526a1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e2526a1bf8a70a4c05cfb556d440467c4b599849))
+- *(changelog)* Nest by day then commit type ([719c0a5](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/719c0a55a08da05831738cd9ab8bcbfdf5c56be1))
+- *(changelog)* Group entries by commit type instead of by day ([3b4b446](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3b4b44609a874d3e914c59f338924684d2ff7a7c))
+- *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([6d26e3a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/6d26e3a2e530be06c96c8a112b120435e5d05308))
+- *(vault)* Enable KV v2, write a verified least-privilege policy ([4d62fba](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/4d62fba8c56d906a3ccb9624dc8b6e981909df63))
+- *(vault)* Initialize and unseal the cluster - it's live ([080c623](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/080c623e1c00c1f0b28112870e36cbbc2724ff12))
+- *(changelog)* Link the hash to its GitHub commit instead of code-formatting it ([bbc3736](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/bbc373617e6e859b3edfdf729c735318f9d3d014))
+- *(changelog)* Show short commit hash, via pre-commit stage not post ([981fedc](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/981fedc74495c5f156f15cd77cab35b9ea66f7f5))
+- Restore the journal, make CHANGELOG.md purely mechanical ([020dc5f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/020dc5f3433df905011d4edc27d9c399cc18b4a3))
 - *(terraform)* Scaffold the HVD module invocation ([0318080](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/03180803db866d648a19b64a45654385e8bfde44))
 - *(terraform)* TLS via private Route53 zone + self-signed CA ([80d9c0b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/80d9c0b11f1936731506ad41ab91bed439754af8))
 
 ### 🐛 Bug Fixes
-- *(changelog)* Revert commit-hash addition, self-amend can't converge ([eeb19f5](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/eeb19f5dbebf976debba6d35db8ed5f52d187af1))
-- *(mkdocs)* Stop Journal nav item rendering twice ([3f0fcb0](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3f0fcb04ee5972367d169f48087f8af2801af71a))
+- *(changelog)* Revert commit-hash addition, self-amend can't converge ([1760a7b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/1760a7bdb7fb8f63d503cf17f4b2bb251e119e43))
+- *(mkdocs)* Stop Journal nav item rendering twice ([3dc6603](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3dc660339f19a767e7b61523ebc2d49992f5f155))
 - *(terraform)* Pin vault_version to 2.1.0+ent ([48a4206](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/48a4206b701fdcb0567bcf83b0bf830568c87c1e))
 
 ### 📚 Documentation
-- *(readme)* Shorten title, fix stale hook/changelog description ([68950c1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/68950c13dcf5af88c8999995bbf9337b439d1386))
-- Tone pass for expert narration, fix stale architecture status ([0d0a346](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0d0a3461993a4809b138b1b1a905ac604eed424f))
-- *(journal)* Simplify to "a government agency", drop "tax" ([5e2c158](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5e2c15864435629fd4f20d7a2b5ab0e95264c7d0))
-- *(journal)* Remove named org from example, fix self-deprecating tone ([35902b4](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/35902b45329dcd94ff21a322397d05befc456538))
-- *(guide)* Remove stale stub chapters, renumber, update glossary ([d8474c1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/d8474c13bcc61a291d78b7d0de1396d92eebdc49))
-- *(guide)* Document the manual cluster-connect runbook ([246c490](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/246c4908afdbd39b1c50ea4ef822e5adeaac2f4a))
-- Fill in Installation guide page and real Architecture diagram ([2f8cdd9](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/2f8cdd9421cb183c66a156561676fa53d2ab31e6))
-- *(decisions)* Record the changelog-hash / pre-commit-stage switch ([360729f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/360729ff849da3751cf9a242b689eb2630e242d3))
+- Stop naming the personal domain we considered and dropped ([e1c3a6d](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e1c3a6db6c3fca8faae06585d6ba1e84eeb41436))
+- *(readme)* Shorten title, fix stale hook/changelog description ([772d299](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/772d29983ae6725b536f1828177168d7aa1bf6b9))
+- Tone pass for expert narration, fix stale architecture status ([c79d5b1](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/c79d5b1a0e42bd945ae9d500850f8fa80d9fe621))
+- *(journal)* Simplify to "a government agency", drop "tax" ([a7e06a9](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/a7e06a9f7c4667a39af909df563ad1bcc760a707))
+- *(journal)* Remove named org from example, fix self-deprecating tone ([0537a7c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0537a7c3ac4c02ff7650abd19e2d455be738c98b))
+- *(guide)* Remove stale stub chapters, renumber, update glossary ([e9f657e](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e9f657e474baa16318a2b94ef419eb023b22fd0d))
+- *(guide)* Document the manual cluster-connect runbook ([a32afdd](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/a32afddbd47fa0aed63381e384b6fd28c45cae3c))
+- Fill in Installation guide page and real Architecture diagram ([cd9feee](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/cd9feee18bc95f64e31249a1cbfe4a36a5942e3a))
+- *(decisions)* Record the changelog-hash / pre-commit-stage switch ([6920772](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/6920772178518d966f0463c0b79ff60543e02394))
 - *(planning)* Validate cluster health; feat(mkdocs): polish homepage ([5ebf0f6](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5ebf0f67ce1deabedf4db48920731894d6114c53))
 - *(guide)* Fill in AWS Infrastructure page ([664846a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/664846a7859a9352251fda6dad3eee7064b37445))
 
 ### 🚜 Refactor
-- *(vault)* Drive mounts and policies from vault-config.yaml ([7909341](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/7909341f25115fcf6d53a92c7379ab41a2628862))
+- *(vault)* Drive mounts and policies from vault-config.yaml ([e72f62b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/e72f62b324f8c716ab407dc79721235c74ad5a97))
+
+### ⚙️ Miscellaneous Tasks
+- *(changelog)* Regenerate to drop a stale entry from the history rewrite ([48aa096](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/48aa096a8f46228e3c1607849e8f40550a2928a1))
 
 ## 2026-09-09
 ### 🚀 Features
