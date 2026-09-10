@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **docs(guide): Document the manual cluster-connect runbook** ([246c490](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/246c4908afdbd39b1c50ea4ef822e5adeaac2f4a))
 - **docs: Fill in Installation guide page and real Architecture diagram** ([2f8cdd9](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/2f8cdd9421cb183c66a156561676fa53d2ab31e6))
 - **feat(vault): Initialize and unseal the cluster - it's live** ([0f0ff6b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0f0ff6b9afe00994f4e1beafaea6a60acb96e564))
 - **feat(changelog): Link the hash to its GitHub commit instead of code-formatting it** ([0cf0176](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0cf0176dc18b161ab414e84d9a4bc05d7d1bebf7))

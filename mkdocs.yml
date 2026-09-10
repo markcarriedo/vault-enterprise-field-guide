@@ -81,12 +81,8 @@ nav:
       - 2. AWS Infrastructure: guide/02-aws-infrastructure.md
       - 3. Installing Vault Enterprise: guide/03-installation.md
       - 4. Configuration: guide/04-configuration.md
-      - 5. Storage Backend: guide/05-storage-backend.md
-      - 6. Auto-Unseal (AWS KMS): guide/06-auto-unseal-kms.md
-      - 7. TLS & Listener: guide/07-tls-listener.md
-      - 8. Clustering & HA: guide/08-clustering-ha.md
-      - 9. Operations & Runbooks: guide/09-operations.md
-      - 10. Troubleshooting: guide/10-troubleshooting.md
+      - 5. Operations & Runbooks: guide/05-operations.md
+      - 6. Troubleshooting: guide/06-troubleshooting.md
   - Reference:
       - reference/architecture.md
       - reference/decisions.md

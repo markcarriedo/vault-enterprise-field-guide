@@ -8,9 +8,9 @@ in-progress notes and discoveries behind each one.
 2. [AWS Infrastructure](02-aws-infrastructure.md)
 3. [Installing Vault Enterprise](03-installation.md)
 4. [Configuration](04-configuration.md)
-5. [Storage Backend](05-storage-backend.md)
-6. [Auto-Unseal (AWS KMS)](06-auto-unseal-kms.md)
-7. [TLS & Listener](07-tls-listener.md)
-8. [Clustering & HA](08-clustering-ha.md)
-9. [Operations & Runbooks](09-operations.md)
-10. [Troubleshooting](10-troubleshooting.md)
+5. [Operations & Runbooks](05-operations.md)
+6. [Troubleshooting](06-troubleshooting.md)
+
+Storage backend, auto-unseal, TLS, and clustering/HA don't get their own steps — the HVD
+module bundles all of them into step 3, and they're covered there and in
+[Architecture](../reference/architecture.md) rather than as separate build steps.
