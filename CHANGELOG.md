@@ -1,5 +1,6 @@
 
 ## 2026-09-10
+- **feat(vault): Initialize and unseal the cluster - it's live** ([0f0ff6b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0f0ff6b9afe00994f4e1beafaea6a60acb96e564))
 - **feat(changelog): Link the hash to its GitHub commit instead of code-formatting it** ([0cf0176](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0cf0176dc18b161ab414e84d9a4bc05d7d1bebf7))
 - **docs(decisions): Record the changelog-hash / pre-commit-stage switch** ([360729f](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/360729ff849da3751cf9a242b689eb2630e242d3))
 - **feat(changelog): Show short commit hash, via pre-commit stage not post** ([ad48b13](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ad48b1342a63370755751fa5054282eed0bd39cc))
