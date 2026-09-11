@@ -55,12 +55,67 @@ vault secrets list
 Requires the `session-manager-plugin` binary locally (`brew install --cask
 session-manager-plugin`) — see [Installing Vault Enterprise](03-installation.md) for why.
 
+### Test dynamic AWS secrets (AWS auth + AWS secrets engine)
+
+Unlike the runbook above, this has to run **from a Vault node itself**, not your laptop —
+AWS IAM-type auth requires the caller to sign its own login request, so this needs a real
+shell on the instance, not just a port-forward tunnel.
+
+```bash
+# 1. Fresh AWS credentials, as above, then a port-forward tunnel (leave running)
+INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups \
+  --auto-scaling-group-names vault-asg \
+  --query "AutoScalingGroups[0].Instances[0].InstanceId" --output text)
+
+aws ssm start-session --target "$INSTANCE_ID" \
+  --document-name AWS-StartPortForwardingSession \
+  --parameters '{"portNumber":["8200"],"localPortNumber":["8200"]}'
+```
+
+```bash
+# 2. In a second terminal: a real shell on the same instance (not a port-forward)
+aws ssm start-session --target "$INSTANCE_ID"
+```
+
+```bash
+# 3. On the instance: log in via AWS auth, then read dynamic credentials
+export VAULT_ADDR=https://127.0.0.1:8200
+export VAULT_CACERT=/etc/vault.d/tls/ca.pem
+export VAULT_TLS_SERVER_NAME=vault.sandbox.internal
+
+export VAULT_TOKEN=$(vault login -method=aws role=field-guide-app -format=json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['auth']['client_token'])")
+
+vault read aws/creds/field-guide-app
+# returns access_key, secret_key, security_token, and a lease_id (900s TTL)
+```
+
+```bash
+# 4. Prove they're real - export them and call AWS with them
+export AWS_ACCESS_KEY_ID=<access_key from step 3>
+export AWS_SECRET_ACCESS_KEY=<secret_key>
+export AWS_SESSION_TOKEN=<security_token>
+
+aws sts get-caller-identity
+# Arn should read assumed-role/vault-dynamic-demo/... - proof it's a real,
+# working assumed-role session, not just a successful `vault read`
+```
+
+Optional: from your laptop (via the tunnel, with the root token), `vault lease revoke
+<lease_id>`, then rerun step 4's `aws sts get-caller-identity` on the instance with the
+*same* exported credentials — it'll still succeed. See the
+[gotcha in Configuration](04-configuration.md#a-verified-gotcha-assumed_role-revocation-is-soft)
+for why.
+
 ## Gotchas
 
 - The root token from `operator init` works fine for sandbox testing, but reach for real auth
   methods/policies once those exist rather than making root-token use a habit.
 - `/tmp/vault-ca.pem` is a throwaway local copy for the session — not sensitive on its own (a
   CA *certificate*, not a private key), but no reason to leave it lying around either.
+- AWS IAM-type auth (`vault login -method=aws`) can only be tested from the instance whose
+  identity is doing the authenticating — a port-forward tunnel isn't enough, since the login
+  request itself has to be signed by the caller's own credentials.
 
 ## References
 

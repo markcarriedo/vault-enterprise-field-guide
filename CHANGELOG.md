@@ -1,4 +1,8 @@
 
+## 2026-09-11
+### 🚀 Features
+- *(vault)* Dynamic AWS credentials via the AWS secrets engine ([6de9235](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/6de9235e637ef7c0d90c22b8f0d95987dad094e3))
+
 ## 2026-09-10
 ### 🚀 Features
 - *(vault)* AWS auth method instead of AppRole, off the root token ([818c90a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/818c90a627154a9095aa6cf1c39e38b25ac6ee5e))
