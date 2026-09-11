@@ -22,3 +22,7 @@ Terms as we encounter them.
 | Auth method | A way to prove identity to Vault and receive a token with policies attached — the root token isn't one; AppRole and AWS auth are. |
 | AppRole | An auth method built around a `role_id` (like a username) and `secret_id` (like a password) — needs a trusted way to distribute the `secret_id` safely. |
 | AWS auth method | An auth method where an EC2 instance authenticates using its own IAM role identity (a signed STS `GetCallerIdentity` request) — no separate secret to generate or distribute. |
+| Dynamic secrets | Credentials Vault generates on demand and tracks with a lease, rather than storing a value someone already created — contrast with static secrets. |
+| Lease | The record Vault keeps of a dynamic secret's lifetime (TTL, renewability) — what `vault lease revoke` acts on. Revoking the lease doesn't always mean the underlying credential dies immediately; depends on the secrets engine and credential type. |
+| assumed_role (AWS secrets engine) | A dynamic-credential mode where Vault assumes an existing IAM role via STS and returns the temporary credentials — no IAM users created or deleted. Revocation is soft: AWS STS has no general API to invalidate an already-issued session before its own TTL. |
+| iam_user (AWS secrets engine) | A dynamic-credential mode where Vault creates a real IAM user + access key per lease and deletes it on revocation — true immediate revocation, at the cost of granting Vault's own identity IAM user-management permissions. |

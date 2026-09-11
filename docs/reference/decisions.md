@@ -15,6 +15,43 @@ Template:
 
 ---
 
+## 2026-09-11 — Dynamic AWS secrets via assumed_role, not iam_user
+
+**Context:** Static secrets (KV v2) prove Vault can store and control access to a value that
+already exists; dynamic secrets are the actually-differentiated feature — Vault generates
+the credential itself, on request, with its own lease. The AWS secrets engine offers two
+main credential types: `iam_user` (create a real IAM user + access key per lease, delete on
+revocation) and `assumed_role` (assume an existing role via STS, return the temporary
+credentials, nothing created or deleted).
+
+**Decision:** `assumed_role`. Added one narrowly-scoped IAM role (`vault-dynamic-demo`,
+`sts:GetCallerIdentity` only — proving the mechanism, not granting real access) trusted by
+the Vault nodes' own IAM role, plus an inline policy granting that existing role
+`sts:AssumeRole` on the new one. `vault_aws_secret_backend` takes no explicit AWS
+credentials, same fallback-to-instance-role pattern as the AWS auth method's client config.
+Extended the existing `field-guide-app` policy (rather than writing a new one) with `read` on
+`aws/creds/field-guide-app` — one app identity, policy scoped across two different secrets
+engines.
+
+**Alternatives considered:** `iam_user` — rejected as the default choice here specifically
+because it requires granting Vault's own IAM role permission to create, tag, attach
+policies to, and delete IAM users/access keys on the fly — a meaningfully broader and more
+sensitive permission grant than `sts:AssumeRole` on one specific role ARN, for a sandbox
+whose whole point is minimizing what any single identity can do.
+
+**Consequences:** Verified with real AWS API calls, not just a successful `vault read` —
+used the returned credentials against STS `get-caller-identity` and confirmed the resulting
+identity was the assumed role, not Vault's own. Also verified (and documented as a gotcha)
+that `assumed_role` lease revocation is soft: `vault lease revoke` stops Vault tracking the
+lease but does not invalidate the underlying STS session, since AWS STS has no
+general-purpose immediate-revocation API (confirmed against AWS's own IAM documentation,
+which describes a session-start-time deny-policy workaround as the real mechanism — one
+Vault doesn't apply automatically). Anyone reusing this pattern for real, sensitive AWS
+access should size the TTL accordingly, since "revoked" doesn't mean "dead" for the
+remaining TTL window.
+
+---
+
 ## 2026-09-10 — AWS auth method instead of AppRole, to stop using the root token
 
 **Context:** Everything so far — configuring mounts, policies, testing enforcement — used the

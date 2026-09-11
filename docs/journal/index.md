@@ -7,6 +7,29 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-11 — Dynamic secrets, and a real gotcha caught by actually testing revocation
+
+First dynamic secret: the AWS secrets engine, `credential_type = "assumed_role"` rather than
+`iam_user` - one small IAM role trusted to assume, permissioned down to
+`sts:GetCallerIdentity` only, instead of handing Vault's own role broad IAM-user-management
+permissions for a sandbox demo. Extended `field-guide-app` (the same policy, not a new one)
+with read access to `aws/creds/field-guide-app`, so one app identity now spans KV v2, AWS
+auth, and dynamic AWS credentials.
+
+Verified the way this whole build insists on: logged in via AWS auth, read the dynamic
+credentials, then actually called AWS STS with them and got back the assumed role's own
+identity - not Vault's, not a guess that the read "worked."
+
+The real find came from pushing one step further than "it works": revoked the lease with the
+root token, confirmed Vault said `Success!`, then tried the exact same credentials again.
+They still worked. Turns out AWS STS has no general way to invalidate an already-issued
+session before its own expiry - confirmed against AWS's own IAM docs, which describe a
+deny-policy-by-session-start-time workaround as the real mechanism, not anything Vault
+applies automatically. So for `assumed_role` (and `federation_token`), "revoke" only ever
+means "Vault stops tracking this" - the credential itself is still live until its TTL runs
+out. `iam_user` doesn't have this gap, since deleting a real IAM user kills its key outright.
+Worth knowing before reaching for `assumed_role` with anything that isn't a 15-minute demo.
+
 ## 2026-09-10 — Off the root token: AWS auth method, not AppRole
 
 Finally closed a gap that had been sitting there since the first KV v2 test: every real

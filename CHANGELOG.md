@@ -1,6 +1,7 @@
 
 ## 2026-09-10
 ### 🚀 Features
+- *(vault)* AWS auth method instead of AppRole, off the root token ([818c90a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/818c90a627154a9095aa6cf1c39e38b25ac6ee5e))
 - *(changelog)* Nest by day then commit type ([719c0a5](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/719c0a55a08da05831738cd9ab8bcbfdf5c56be1))
 - *(changelog)* Group entries by commit type instead of by day ([3b4b446](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3b4b44609a874d3e914c59f338924684d2ff7a7c))
 - *(vault)* Manage the secret/ mount and field-guide-app policy in Terraform ([6d26e3a](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/6d26e3a2e530be06c96c8a112b120435e5d05308))
