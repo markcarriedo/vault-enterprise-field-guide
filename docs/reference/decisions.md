@@ -15,6 +15,43 @@ Template:
 
 ---
 
+## 2026-09-12 — Manual S3-backed Raft snapshots, not Vault Enterprise's automated snapshot agent
+
+**Context:** Integrated Storage (Raft) needs a real disaster-recovery story beyond "3 replicas
+survive one node loss" — a corrupted write, a bad policy change, or a full cluster loss all
+need a point-in-time snapshot to recover from. Vault Enterprise has a built-in automated
+snapshot agent (periodic snapshots pushed to cloud storage, configured via its own API), which
+would be the production-grade answer.
+
+**Decision:** A manual flow instead: an operator runs `vault operator raft snapshot save`,
+then `aws s3 cp`s the result into a dedicated, versioned S3 bucket
+(`terraform/vault-config/snapshots.tf`) — same security pattern as the Terraform state bucket
+(KMS SSE with a bucket key, all public access blocked, an explicit
+`DenyInsecureTransport` policy, 30-day lifecycle expiration on both current and noncurrent
+versions). Restore is the mirror: `aws s3 cp` the chosen snapshot back down, then
+`vault operator raft snapshot restore`.
+
+**Alternatives considered:** Vault Enterprise's automated snapshot agent — rejected for now,
+not on principle but on cost/benefit: it needs its own IAM grant on the Vault nodes' role (to
+write to S3 directly) plus a Vault-API-side configuration this Terraform provider has no
+dedicated resource for, so wiring it up would mean either a raw API call outside Terraform's
+normal resource model or accepting undeclared drift. None of that is needed to prove the core
+mechanism (a snapshot can save real state and a restore can reload it correctly) — worth
+revisiting if this ever needs a real, unattended recovery point objective rather than a
+demonstrated capability.
+
+**Consequences:** Verified with a real, safe round-trip test rather than trusting the command
+output alone: wrote a disposable marker key *after* taking a snapshot, restored that snapshot,
+and confirmed the marker was gone (proof the restore genuinely reloaded state) while data
+written *before* the snapshot survived untouched — with cluster topology (3 nodes, same
+leader, same Cluster ID) unaffected throughout. This is the pattern worth reusing for any
+future restore test: a disposable, timestamped marker distinguishes "the restore did nothing"
+from "the restore worked" in a way that re-reading already-known-good data can't. Snapshot
+cadence is still manual (no schedule/cron), so there's currently no protection against
+forgetting to take one before a risky change.
+
+---
+
 ## 2026-09-12 — Audit logs to CloudWatch via SSM State Manager, not the HVD module's bootstrap
 
 **Context:** Vault's audit devices (`file`, `syslog`, `socket`) have no native CloudWatch

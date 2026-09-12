@@ -3,6 +3,9 @@
 ### 🚀 Features
 - *(vault)* Audit logging to CloudWatch via SSM State Manager ([ada0f7b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ada0f7bea6f9fc30e51a692cc4125f43c4ad75d9))
 
+### 📚 Documentation
+- *(guide)* Add the audit-log verification runbook to Operations ([34d551b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/34d551b3b9acd70c695e3eb30a333d54673dcaf1))
+
 ### 🚜 Refactor
 - *(vault)* Dedicated client instance, rename app to inventory-service ([3fecb5c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3fecb5cf7e79b5f5565f07bf5dc9dda72ad4ef68))
 

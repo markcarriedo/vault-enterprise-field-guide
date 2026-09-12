@@ -7,6 +7,34 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-12 — Raft snapshots, tested the only way that actually proves anything
+
+Closed the last big gap from the certification-topic sweep: disaster recovery for Integrated
+Storage. The mechanism is simple on paper - `vault operator raft snapshot save`, `vault
+operator raft snapshot restore` - but "simple on paper" isn't the same as "verified," and a
+restore is a genuinely cluster-wide operation, not something to test carelessly against a live
+cluster.
+
+Built a durable landing spot first: a dedicated S3 bucket
+(`terraform/vault-config/snapshots.tf`), reusing the exact security pattern already proven out
+for the Terraform state bucket - KMS SSE with a bucket key, versioning, all public access
+blocked, an explicit deny-insecure-transport policy, 30-day expiration. Skipped Vault
+Enterprise's own automated snapshot agent for now - it needs its own IAM grant plus API-side
+config this Terraform provider has no resource for, more machinery than proving the core
+mechanism actually needs.
+
+Then the part that mattered: didn't just run `save` and `restore` and call it verified. Wrote
+a disposable marker key *after* taking the snapshot, confirmed real data was still there,
+restored the snapshot, then checked both directions - the marker gone (proof the restore
+genuinely reloaded state, not a no-op), and the real data untouched (proof it didn't nuke
+anything it shouldn't have). Checked cluster health before and after too:
+`operator raft list-peers` showed the identical three-node topology, same leader, same Cluster
+ID, both times. A restore that quietly changed cluster membership or dropped a node would be
+far worse than one that just didn't work.
+
+Everything came back clean on the first real attempt - no bugs to chase this time, just a
+mechanism that did exactly what it should.
+
 ## 2026-09-12 — Audit logs land in CloudWatch, after one genuine ordering bug
 
 Closed one of the cheapest, highest-value gaps left on the certification-topic gap analysis:

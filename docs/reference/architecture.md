@@ -20,6 +20,7 @@ flowchart TB
         SM["Secrets Manager\nlicense, TLS cert/key/CA, init output"]
         R53["Route53 private zone\nvault.sandbox.internal"]
         CW["CloudWatch Logs\naudit log shipping"]
+        S3["S3\nRaft snapshots"]
     end
 
     You -->|"SSM port-forward\n(no bastion)"| V1
@@ -39,6 +40,7 @@ flowchart TB
     V1 -.->|"CloudWatch Agent\n(SSM-managed)"| CW
     V2 -.->|"CloudWatch Agent\n(SSM-managed)"| CW
     V3 -.->|"CloudWatch Agent\n(SSM-managed)"| CW
+    You -.->|"manual save/upload,\ndownload/restore"| S3
 ```
 
 ## Components
@@ -62,6 +64,9 @@ flowchart TB
 - **Audit logging** — a `file` audit device shipped to CloudWatch Logs by the AWS CloudWatch
   Agent, installed and configured via SSM State Manager rather than the Vault nodes' own
   launch template.
+- **Raft snapshots** — a dedicated, versioned, KMS-encrypted S3 bucket, populated by an
+  operator manually running `vault operator raft snapshot save` + `aws s3 cp` (not Vault
+  Enterprise's own automated snapshot agent — see the [decision log](decisions.md)).
 - **Access** — SSM port-forwarding straight to a node's own port, no bastion host, no public
   ingress path at all.
 
@@ -69,5 +74,6 @@ flowchart TB
 
 Transit (encryption as a service), PKI, and Namespaces — see the [guide](../guide/index.md)
 for what's next. Static secrets (KV v2), a least-privilege policy, an AWS auth method,
-dynamic AWS credentials via the AWS secrets engine, and audit logging to CloudWatch are
-already live, all Terraform-managed — see [Configuration](../guide/04-configuration.md).
+dynamic AWS credentials via the AWS secrets engine, audit logging to CloudWatch, and Raft
+snapshot backup/restore are already live, all Terraform-managed — see
+[Configuration](../guide/04-configuration.md).
