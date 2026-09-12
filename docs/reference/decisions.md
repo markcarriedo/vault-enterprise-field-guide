@@ -15,6 +15,42 @@ Template:
 
 ---
 
+## 2026-09-12 — A dedicated client instance instead of reusing the Vault node's role
+
+**Context:** The AWS auth method's `bound_iam_principal_arns` had been pointed at the Vault
+nodes' own IAM role since it went in — a pragmatic shortcut at the time ("there's no separate
+app instance in this sandbox"), but conceptually wrong: it modeled Vault's own server
+identity as if it were an application client, which no real deployment would do.
+
+**Decision:** Added a dedicated, minimal EC2 instance (`terraform/vault-config/demo-client.tf`)
+whose only purpose is to *be* a distinct IAM identity — no AWS permissions beyond
+`AmazonSSMManagedInstanceCore` (to reach it for testing), private subnet, no public IP,
+Vault CLI only via `user_data` (it never runs a Vault server). AWS auth's
+`bound_iam_principal_arns` now binds to this instance's role instead.
+
+**Alternatives considered:** Skipping the EC2 instance entirely — assume a separate IAM role
+locally (via `sts:AssumeRole` from an existing session) instead, avoiding any new
+infrastructure or cost. Rejected once weighed against the alternative: the real EC2 instance
+demonstrates the pattern actual EC2-based Vault clients use, which is worth more here than
+saving a small, disposable sandbox instance's cost.
+
+**Consequences:** A real Terraform footgun surfaced applying this: renaming the instance's
+IAM role/instance profile/security group (genuine `name` changes, not just relabeling) forces
+AWS to recreate them, but the **instance** referencing those resources only needs an in-place
+update — Terraform's default apply doesn't guarantee that ordering relative to deleting the
+now-unreferenced security group. Two apply attempts got stuck 25+ minutes each in a
+`DependencyViolation` loop (the delete racing the instance's still-pending security-group
+swap). Fixed by running `-target=aws_instance.inventory_service_instance` first, confirming
+via `aws ec2 describe-instances` that it had actually moved to the new security group, then
+letting a normal `apply` clean up the rest — which then finished in one second. Also renamed
+the example app from `field-guide-app` to `inventory-service` throughout (a placeholder name
+that had stuck since the very first KV path), and nested `vault-config.yaml`'s
+`aws_auth_roles`/`aws_secret_roles` under one `apps` map, since both were separate top-level
+maps keyed by the same app name — grouping everything about one app together reads clearer as
+more apps get added.
+
+---
+
 ## 2026-09-11 — Dynamic AWS secrets via assumed_role, not iam_user
 
 **Context:** Static secrets (KV v2) prove Vault can store and control access to a value that
@@ -29,9 +65,9 @@ credentials, nothing created or deleted).
 the Vault nodes' own IAM role, plus an inline policy granting that existing role
 `sts:AssumeRole` on the new one. `vault_aws_secret_backend` takes no explicit AWS
 credentials, same fallback-to-instance-role pattern as the AWS auth method's client config.
-Extended the existing `field-guide-app` policy (rather than writing a new one) with `read` on
-`aws/creds/field-guide-app` — one app identity, policy scoped across two different secrets
-engines.
+Extended the existing `inventory-service` policy (rather than writing a new one) with `read`
+on `aws/creds/inventory-service` — one app identity, policy scoped across two different
+secrets engines.
 
 **Alternatives considered:** `iam_user` — rejected as the default choice here specifically
 because it requires granting Vault's own IAM role permission to create, tag, attach
@@ -66,7 +102,7 @@ Added `vault_auth_backend`, `vault_aws_auth_backend_client`, and
 `vault_aws_auth_backend_role` to `terraform/vault-config/auth.tf`, bound via
 `bound_iam_principal_arns` to a Vault node's own IAM role (there's no separate "app" instance
 in this sandbox, so it doubles as the client proving the pattern), `token_policies =
-["field-guide-app"]`. The role is looked up with `data "aws_iam_role"` by **name**, not ARN —
+["inventory-service"]`. The role is looked up with `data "aws_iam_role"` by **name**, not ARN —
 the AWS account ID is structurally part of any IAM ARN, and this repo has never committed one;
 resolving it dynamically at apply time keeps that true here too. `resolve_aws_unique_ids` set
 to `false` deliberately — the default `true` would need `iam:GetRole`/`iam:GetUser`
@@ -85,10 +121,10 @@ there's no secret to vend, since the instance's IAM role already *is* the creden
 **Consequences:** Verified end-to-end, not just applied — IAM-type login has to be tested
 from the authenticating instance itself, since the request must be signed by the caller's own
 credentials; a laptop with different AWS credentials can only prove the wrong identity is
-rejected, not that the right one works. SSM'd onto a Vault node, ran `vault login
--method=aws role=field-guide-app`, got a token with `field-guide-app` attached, then repeated
-the same enforcement proof as the KV v2 policy (read succeeds, write and an unrelated path
-both 403). This pattern only works for clients that are themselves EC2 instances with a real
+rejected, not that the right one works. SSM'd onto a Vault node, ran `vault login -method=aws
+role=inventory-service`, got a token with `inventory-service` attached, then repeated the
+same enforcement proof as the KV v2 policy (read succeeds, write and an unrelated path both
+403). This pattern only works for clients that are themselves EC2 instances with a real
 IAM identity; a genuinely external or non-AWS client would still need AppRole (or another
 method) and would have to solve the `secret_id`-vending problem for real.
 
@@ -167,7 +203,7 @@ already carries that meaning.
 
 ## 2026-09-10 — Vault's own config moved into Terraform, not just AWS infrastructure
 
-**Context:** The KV v2 mount and `field-guide-app` policy were created with plain `vault`
+**Context:** The KV v2 mount and `inventory-service` policy were created with plain `vault`
 CLI commands, same session as the AWS work but tracked nowhere - the only record was shell
 history and the journal. Every other piece of this build (VPC, KMS, the cluster itself) is
 Terraform-managed and reviewable in a diff; Vault's internal config wasn't, purely because it

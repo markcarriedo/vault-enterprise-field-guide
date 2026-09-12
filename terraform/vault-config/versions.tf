@@ -27,9 +27,23 @@ terraform {
 # guide/05-operations.md to be running first.
 provider "vault" {}
 
-# Only used to look up the Vault nodes' own IAM role by name (see auth.tf) -
-# same credential pattern as every other AWS provider block in this repo:
-# no profile, no keys, just the env vars exported for the session.
+# Used to look up the Vault nodes' own IAM role by name (auth.tf,
+# dynamic-secrets.tf) and to run the AWS-auth demo client instance
+# (demo-client.tf) - same credential pattern as every other AWS provider
+# block in this repo: no profile, no keys, just the env vars exported for
+# the session.
 provider "aws" {
   region = "ap-southeast-2"
+}
+
+# VPC/subnet IDs for the demo client instance - read from prerequisites'
+# state rather than re-declared here, same pattern terraform/vault uses.
+data "terraform_remote_state" "prerequisites" {
+  backend = "s3"
+
+  config = {
+    bucket = "vault-enterprise-field-guide-tfstate-dc2565bd"
+    key    = "prerequisites/terraform.tfstate"
+    region = "ap-southeast-2"
+  }
 }

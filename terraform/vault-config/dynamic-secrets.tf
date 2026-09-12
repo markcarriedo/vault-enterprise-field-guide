@@ -66,15 +66,27 @@ resource "vault_aws_secret_backend" "this" {
   # above, to assume the demo role).
 }
 
-resource "vault_aws_secret_backend_role" "field_guide_app" {
+# Which AWS IAM role each app's aws_secret block (vault-config.yaml) is
+# allowed to assume - kept explicit here, not in the YAML, for the same
+# reason as aws_auth_bound_principals in auth.tf: a real trust binding
+# shouldn't hide behind generic-looking config data.
+locals {
+  aws_secret_role_arns = {
+    inventory-service = aws_iam_role.vault_dynamic_demo.arn
+  }
+}
+
+resource "vault_aws_secret_backend_role" "this" {
+  for_each = { for name, app in local.config.apps : name => app.aws_secret if try(app.aws_secret, null) != null }
+
   backend = vault_aws_secret_backend.this.path
-  name    = "field-guide-app"
+  name    = each.key
 
   credential_type = "assumed_role"
-  role_arns       = [aws_iam_role.vault_dynamic_demo.arn]
+  role_arns       = [local.aws_secret_role_arns[each.key]]
 
   # Short-lived by default (AWS STS minimum) to actually demonstrate dynamic,
   # short-lived credentials rather than defaulting to a full hour.
-  default_sts_ttl = 900
-  max_sts_ttl     = 3600
+  default_sts_ttl = each.value.default_sts_ttl
+  max_sts_ttl     = each.value.max_sts_ttl
 }

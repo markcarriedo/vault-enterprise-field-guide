@@ -57,36 +57,40 @@ session-manager-plugin`) — see [Installing Vault Enterprise](03-installation.m
 
 ### Test dynamic AWS secrets (AWS auth + AWS secrets engine)
 
-Unlike the runbook above, this has to run **from a Vault node itself**, not your laptop —
-AWS IAM-type auth requires the caller to sign its own login request, so this needs a real
-shell on the instance, not just a port-forward tunnel.
+Unlike the runbook above, this has to run **from the dedicated demo client instance**
+(`terraform/vault-config/demo-client.tf`), not a Vault node and not your laptop — AWS
+IAM-type auth requires the caller to sign its own login request, so this needs a real shell on
+the instance whose IAM role is actually bound to the `inventory-service` AWS auth role.
 
 ```bash
-# 1. Fresh AWS credentials, as above, then a port-forward tunnel (leave running)
-INSTANCE_ID=$(aws autoscaling describe-auto-scaling-groups \
-  --auto-scaling-group-names vault-asg \
-  --query "AutoScalingGroups[0].Instances[0].InstanceId" --output text)
+# 1. Fresh AWS credentials, then a real shell on the demo client instance
+#    (not a port-forward - this instance isn't a Vault node, so there's
+#    nothing listening on its own 8200 to forward to)
+INSTANCE_ID=$(aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=inventory-service-instance" "Name=instance-state-name,Values=running" \
+  --query "Reservations[0].Instances[0].InstanceId" --output text)
 
-aws ssm start-session --target "$INSTANCE_ID" \
-  --document-name AWS-StartPortForwardingSession \
-  --parameters '{"portNumber":["8200"],"localPortNumber":["8200"]}'
-```
-
-```bash
-# 2. In a second terminal: a real shell on the same instance (not a port-forward)
 aws ssm start-session --target "$INSTANCE_ID"
 ```
 
 ```bash
-# 3. On the instance: log in via AWS auth, then read dynamic credentials
-export VAULT_ADDR=https://127.0.0.1:8200
-export VAULT_CACERT=/etc/vault.d/tls/ca.pem
-export VAULT_TLS_SERVER_NAME=vault.sandbox.internal
+# 2. On the instance: fetch the CA cert (it isn't a Vault node, so it has
+#    no local copy) and point VAULT_ADDR at the cluster's real in-VPC
+#    address, not 127.0.0.1 - there's no local Vault process here
+aws secretsmanager get-secret-value \
+  --secret-id vault-enterprise/tls-ca-bundle \
+  --query SecretString --output text | base64 -d > /tmp/vault-ca.pem
 
-export VAULT_TOKEN=$(vault login -method=aws role=field-guide-app -format=json | \
+export VAULT_ADDR=https://vault.sandbox.internal:8200
+export VAULT_CACERT=/tmp/vault-ca.pem
+```
+
+```bash
+# 3. Log in via AWS auth, then read dynamic credentials
+export VAULT_TOKEN=$(vault login -method=aws role=inventory-service -format=json | \
   python3 -c "import json,sys; print(json.load(sys.stdin)['auth']['client_token'])")
 
-vault read aws/creds/field-guide-app
+vault read aws/creds/inventory-service
 # returns access_key, secret_key, security_token, and a lease_id (900s TTL)
 ```
 
@@ -101,9 +105,9 @@ aws sts get-caller-identity
 # working assumed-role session, not just a successful `vault read`
 ```
 
-Optional: from your laptop (via the tunnel, with the root token), `vault lease revoke
-<lease_id>`, then rerun step 4's `aws sts get-caller-identity` on the instance with the
-*same* exported credentials — it'll still succeed. See the
+Optional: from your laptop (via a port-forward tunnel to a Vault node, with the root token),
+`vault lease revoke <lease_id>`, then rerun step 4's `aws sts get-caller-identity` on the demo
+client instance with the *same* exported credentials — it'll still succeed. See the
 [gotcha in Configuration](04-configuration.md#a-verified-gotcha-assumed_role-revocation-is-soft)
 for why.
 

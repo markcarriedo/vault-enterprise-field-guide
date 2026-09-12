@@ -12,7 +12,7 @@ resource "vault_mount" "this" {
 }
 
 resource "vault_policy" "this" {
-  for_each = local.config.policies
+  for_each = { for name, app in local.config.apps : name => app if try(app.policy_file, null) != null }
 
   name   = each.key
   policy = file("${path.module}/policies/${each.value.policy_file}")

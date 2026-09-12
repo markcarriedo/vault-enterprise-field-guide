@@ -7,13 +7,48 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-12 — A real client instance, a nicer YAML shape, and a proper name
+
+Closed a gap flagged back when AWS auth first went in: the "client" proving the pattern was
+the Vault nodes' own IAM role, which only ever made sense as a stopgap - a real app shouldn't
+authenticate to Vault as the Vault server itself. Added a dedicated, minimal EC2 instance
+(`terraform/vault-config/demo-client.tf`) whose only job is to *be* a distinct identity - no
+AWS permissions beyond SSM access to reach it. Considered skipping the EC2 instance entirely
+(assume a role locally instead, zero new infrastructure) but went with the real instance
+anyway, since it demonstrates the pattern real EC2-based Vault clients actually use.
+
+That surfaced a genuine Terraform footgun: renaming the instance's IAM role, instance
+profile, and security group (all real name changes, not just relabeling) forces AWS to
+recreate them - fine - but the *instance* referencing them doesn't need to be destroyed too,
+only updated in place. The first two apply attempts didn't realize that and got stuck for
+25+ minutes in a dependency-violation loop (Terraform trying to delete the old security group
+while the instance was still silently attached to it). Fixed by targeting the instance update
+on its own first (`-target=aws_instance...`), confirming via `aws ec2 describe-instances` that
+it had actually moved to the new security group, then letting a normal apply clean up what was
+left - which finished in one second once nothing was still attached.
+
+While rebuilding the client identity, also renamed the example app from `field-guide-app` to
+`inventory-service` - a placeholder name that had just stuck since the very first KV path -
+and restructured `vault-config.yaml`: `aws_auth_roles` and `aws_secret_roles` used to be
+separate top-level maps keyed by the same app name; nested them under one `apps` map instead,
+each entry grouping its policy and role bindings together. Which AWS IAM principal a role
+trusts stayed deliberately out of the YAML either way - that's still an explicit map next to
+the real IAM resources, not something to hide behind a config value.
+
+Moved the actual KV secret data across paths by hand (`vault kv put` at the new path, `vault
+kv metadata delete` at the old one) since Terraform only manages the mount, not individual
+key-value entries. Re-ran the full auth + dynamic-secrets proof afterward from the new
+instance - which surfaced one more thing to fix along the way: `VAULT_ADDR=127.0.0.1:8200`
+only makes sense on an actual Vault node with a local Vault process to forward to; a separate
+client instance needs the cluster's real in-VPC address instead.
+
 ## 2026-09-11 — Dynamic secrets, and a real gotcha caught by actually testing revocation
 
 First dynamic secret: the AWS secrets engine, `credential_type = "assumed_role"` rather than
 `iam_user` - one small IAM role trusted to assume, permissioned down to
 `sts:GetCallerIdentity` only, instead of handing Vault's own role broad IAM-user-management
-permissions for a sandbox demo. Extended `field-guide-app` (the same policy, not a new one)
-with read access to `aws/creds/field-guide-app`, so one app identity now spans KV v2, AWS
+permissions for a sandbox demo. Extended `inventory-service` (the same policy, not a new one)
+with read access to `aws/creds/inventory-service`, so one app identity now spans KV v2, AWS
 auth, and dynamic AWS credentials.
 
 Verified the way this whole build insists on: logged in via AWS auth, read the dynamic
@@ -48,7 +83,7 @@ the account ID never lands in a committed file, same rule as everywhere else her
 
 Couldn't test it from a laptop - IAM-type login has to be signed by the authenticating
 identity itself, so proving it meant SSM'ing onto a Vault node and logging in from there.
-Worked first try: token came back scoped to `field-guide-app`, no human, no root token. Ran
+Worked first try: token came back scoped to `inventory-service`, no human, no root token. Ran
 the same read/write/unrelated-path proof as the original KV v2 policy test rather than trusting
 that "login succeeded" was enough on its own - write and the unrelated path both came back 403.
 

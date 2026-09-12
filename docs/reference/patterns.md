@@ -28,8 +28,8 @@ secrets engines and auth methods without needing (or touching) anyone else's con
 ### When each is worth it
 
 **Pattern 1** — a single team with a handful of related apps under one admin/compliance
-boundary already. This is what this field guide's own sandbox uses (`secret/field-guide/*`,
-one app).
+boundary already. This is what this field guide's own sandbox uses
+(`secret/inventory-service/*`, one app).
 
 **Pattern 2** — distinct teams under the *same* legal/regulatory entity that want operational
 independence (different secret retention, cleaner blast-radius lines) but don't need to run

@@ -1,7 +1,15 @@
 # Declarative source of truth for Vault's own configuration - secrets engine
-# mounts and ACL policies. Add a new mount or policy here; main.tf shouldn't
-# need to change unless a genuinely new *kind* of resource shows up (an auth
-# method, say) that these two for_each blocks don't already cover.
+# mounts, and one entry per app under `apps` grouping its policy and
+# auth/secrets-engine role bindings together. Add a new mount or app here;
+# main.tf/auth.tf/dynamic-secrets.tf only need changes for a genuinely new
+# *kind* of resource these for_each blocks don't already cover. An app only
+# needs the sub-keys it actually uses - aws_auth/aws_secret are optional.
+#
+# aws_auth and aws_secret hold only the generic, non-sensitive shape (which
+# policies, which TTLs) - which AWS IAM principal each one binds to is
+# deliberately kept out of this file and defined explicitly next to the IAM
+# resources themselves (auth.tf / demo-client.tf), so a real trust
+# relationship is never hidden behind a YAML value.
 
 mounts:
   secret:
@@ -10,6 +18,14 @@ mounts:
     options:
       version: "2"
 
-policies:
-  field-guide-app:
-    policy_file: field-guide-app.hcl
+apps:
+  inventory-service:
+    policy_file: inventory-service.hcl
+
+    aws_auth:
+      token_policies:
+        - inventory-service
+
+    aws_secret:
+      default_sts_ttl: 900
+      max_sts_ttl: 3600
