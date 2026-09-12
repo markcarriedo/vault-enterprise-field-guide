@@ -52,10 +52,10 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 - [x] Initialized & unsealed — auto-unseal via KMS, 3/3 nodes confirmed as Raft peers (1
       leader, 2 followers), root token + recovery keys secured in Secrets Manager
 - [ ] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
-      method so real workloads stop using the root token, and dynamic AWS credentials via the
-      AWS secrets engine; PKI still to come
-- [ ] Operations runbooks — one so far (connecting to the cluster manually); an open-ended
-      category, not a one-time milestone
+      method so real workloads stop using the root token, dynamic AWS credentials via the
+      AWS secrets engine, and audit logging to CloudWatch; Transit and PKI still to come
+- [ ] Operations runbooks — two so far (connecting to the cluster manually, testing dynamic
+      secrets); an open-ended category, not a one-time milestone
 
 See the [journal](journal/index.md) for the day-by-day story, or the
 [decision log](reference/decisions.md) for why things were built the way they were.

@@ -7,6 +7,36 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-12 — Audit logs land in CloudWatch, after one genuine ordering bug
+
+Closed one of the cheapest, highest-value gaps left on the certification-topic gap analysis:
+audit logging, at zero coverage until now. Vault itself can't ship audit logs to CloudWatch -
+only `file`, `syslog`, `socket` - so this meant a `file` device plus the AWS CloudWatch Agent
+actually shipping that file somewhere.
+
+First instinct was to bolt the agent install onto the HVD module's node bootstrap via
+`custom_startup_script_template` - reasonable-sounding, wrong once actually checked: that
+variable *replaces* the module's entire built-in install script, not extends it.
+Reimplementing Vault's own TLS/seal/retry-join install logic from scratch just to add one
+package wasn't worth the risk to a cluster that's actually running. Used AWS Systems Manager
+State Manager instead - two associations (install the agent, then configure it from an SSM
+parameter), targeting the ASG by the tag it already carries. Zero changes to the launch
+template, and it covers future instances automatically, not just today's three.
+
+Verified with a `terraform apply`, then didn't stop there: checked `describe-association-executions`
+directly rather than trusting "Apply complete." Good thing - the configure association had
+failed with "CloudWatch Agent not installed" a few seconds after the install association had
+already reported success on the exact same instances. `depends_on` between the two had
+ordered their creation in Terraform, which turned out to say nothing about the order State
+Manager actually runs them on a real instance. Re-triggered the configure step by hand once
+install had genuinely finished, then added a 30-minute recurring schedule so a future
+instance losing the same race fixes itself instead of quietly never shipping logs.
+
+Closed the loop by generating real Vault activity and reading it straight back out of
+CloudWatch Logs - confirmed the sensitive fields (`client_token`, `accessor`) come through
+HMAC-hashed by Vault's own audit device, not in the clear. "The association shows Success"
+was never going to be enough on its own, same rule as everything else in this build.
+
 ## 2026-09-12 — A real client instance, a nicer YAML shape, and a proper name
 
 Closed a gap flagged back when AWS auth first went in: the "client" proving the pattern was

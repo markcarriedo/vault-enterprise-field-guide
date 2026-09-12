@@ -1,4 +1,8 @@
 
+## 2026-09-12
+### 🚜 Refactor
+- *(vault)* Dedicated client instance, rename app to inventory-service ([3fecb5c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3fecb5cf7e79b5f5565f07bf5dc9dda72ad4ef68))
+
 ## 2026-09-11
 ### 🚀 Features
 - *(vault)* Dynamic AWS credentials via the AWS secrets engine ([6de9235](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/6de9235e637ef7c0d90c22b8f0d95987dad094e3))

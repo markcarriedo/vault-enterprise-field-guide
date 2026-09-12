@@ -15,6 +15,44 @@ Template:
 
 ---
 
+## 2026-09-12 — Audit logs to CloudWatch via SSM State Manager, not the HVD module's bootstrap
+
+**Context:** Vault's audit devices (`file`, `syslog`, `socket`) have no native CloudWatch
+option. A `file` device at `/var/log/vault/audit.log` (the path the HVD module already
+provisions) needed something else to actually ship its contents off-box — the AWS
+CloudWatch Agent, which isn't preinstalled on the module's AMI.
+
+**Decision:** Two `aws_ssm_association` resources (`AWS-ConfigureAWSPackage` to install the
+agent, `AmazonCloudWatch-ManageAgent` to configure and start it from an `aws_ssm_parameter`
+holding its JSON config), targeting instances by the `aws:autoscaling:groupName` tag the ASG
+already carries. A new CloudWatch Log Group, plus `logs:CreateLogStream`/`PutLogEvents`/
+`DescribeLogStreams` and `ssm:GetParameter` added to the Vault nodes' existing role, scoped
+to the one log group and one parameter respectively.
+
+**Alternatives considered:** The HVD module's `custom_startup_script_template` variable —
+looked like the obvious place to add "and also install the CloudWatch Agent" to node
+bootstrap. Rejected once actually read: it **replaces** the module's entire built-in install
+script rather than extending it, so using it here would mean reimplementing Vault's own
+install logic from scratch (TLS, seal config, retry-join, license, all of it) just to bolt on
+one extra package — real risk to a working cluster for no good reason. SSM State Manager
+avoids touching the launch template or bootstrap at all, and — unlike a launch-template
+change — automatically covers any future instance the ASG launches without needing an
+instance refresh.
+
+**Consequences:** Verified with real log data, not just a successful association — generated
+actual Vault activity and read it back from CloudWatch Logs, confirming sensitive fields
+(`client_token`, `accessor`) come through HMAC-hashed by Vault's own audit device, never in
+the clear. Also found and fixed a real ordering bug: `depends_on` between the two
+associations only orders their *creation* in Terraform, not State Manager's own execution
+timing on the instance — the configure association raced the install association on first
+apply and failed with "CloudWatch Agent not installed" a few seconds after install had
+already succeeded. Fixed the immediate case by hand
+(`aws ssm start-associations-once`) and added a 30-minute recurring `schedule_expression` so
+a genuinely new instance that loses the same race self-heals automatically instead of
+silently never shipping audit logs.
+
+---
+
 ## 2026-09-12 — A dedicated client instance instead of reusing the Vault node's role
 
 **Context:** The AWS auth method's `bound_iam_principal_arns` had been pointed at the Vault
