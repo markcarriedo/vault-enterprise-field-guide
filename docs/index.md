@@ -41,15 +41,6 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 
     [:octicons-arrow-right-24: Read the journal](journal/index.md)
 
--   __Changelog__
-
-    ---
-
-    Mechanical, one line per commit — generated via git-cliff. Lives at the repo root, not
-    part of this site.
-
-    [:octicons-arrow-right-24: View on GitHub](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
-
 </div>
 
 ## Status

@@ -1,8 +1,15 @@
 
 ## 2026-09-13
 ### 📚 Documentation
+- Retire the journal for good ([efd9655](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/efd965571ae11db2aeb9644a233fa69ca63bdf26))
+- *(runbooks)* Split each runbook into its own page ([91e0da8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/91e0da894e7ec393bab04393d16b4739923c0fdb))
 - Promote Runbooks to its own top-level nav section ([3ff6922](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3ff692275b6bde83ad6e39b4ee47ee7ccad43576))
 - *(guide)* Root token regeneration runbook, incl. a real Vault 2.0 gotcha ([5278931](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5278931f99165ae8c4cd88b37af32a41050c02b8))
+
+### 💼 Other
+- Revert "docs: retire the journal for good"
+
+This reverts commit efd965571ae11db2aeb9644a233fa69ca63bdf26. ([b7235e0](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/b7235e079ab251f0bc362cbed8b88d4f4c59445d))
 
 ## 2026-09-12
 ### 🚀 Features
