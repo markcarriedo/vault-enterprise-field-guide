@@ -32,6 +32,15 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 
     [:octicons-arrow-right-24: Browse reference](reference/architecture.md)
 
+-   __Journal__
+
+    ---
+
+    Dated field notes, in the order things happened — the story: what we tried, what broke,
+    what we decided, and why.
+
+    [:octicons-arrow-right-24: Read the journal](journal/index.md)
+
 -   __Changelog__
 
     ---
@@ -58,6 +67,5 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
       dynamic secrets, verifying audit logging, Raft snapshot backup/restore, root token
       regeneration); an open-ended category, not a one-time milestone
 
-See the [decision log](reference/decisions.md) for why things were built the way they were, or
-the [changelog](https://github.com/markcarriedo/vault-enterprise-field-guide/blob/main/CHANGELOG.md)
-and `git log` for the commit-by-commit record.
+See the [journal](journal/index.md) for the day-by-day story, or the
+[decision log](reference/decisions.md) for why things were built the way they were.

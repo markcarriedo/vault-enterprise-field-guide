@@ -1,8 +1,8 @@
 # Troubleshooting
 
 !!! note "Not started yet"
-    This section will be filled in once something genuinely doesn't fit one of the other
-    chapters' own Gotchas sections.
+    This section will be filled in once we work through this stage. See the
+    [journal](../journal/index.md) for in-progress notes.
 
 ## Goal
 
