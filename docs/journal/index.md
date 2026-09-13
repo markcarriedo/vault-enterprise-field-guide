@@ -7,6 +7,38 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-13 — Regenerating the root token, and a real Vault 2.0 surprise along the way
+
+Picked root token regeneration off the certification roadmap - the root token from `operator
+init` has no TTL, so it's the one credential in this build that never expires on its own.
+Worth having as a tested runbook, not just something assumed to work from reading the docs.
+
+First attempt didn't work at all: `vault operator generate-root -init` came back `403
+permission denied`, with no token set - which contradicted everything the older Vault docs
+say about this command needing only recovery key fragments, no authentication. Rather than
+assume a misconfiguration, pulled the actual audit log entry for the request (nice payoff from
+yesterday's CloudWatch work) and then checked HashiCorp's current docs directly. Confirmed:
+Vault 2.0 changed `sys/generate-root` to require an authenticated token by default - closing a
+real gap where an attacker could submit bogus key fragments to block legitimate use. A
+backward-compatible config flag exists to restore the old behavior, but HashiCorp's own
+guidance says not to bother - just supply a token. Used the existing root token, since it was
+sitting right there and about to be replaced anyway.
+
+From there the actual procedure was clean: authenticated `-init`, submitted 3 of the cluster's
+5 recovery key shares against the returned nonce, decoded the resulting token with the OTP.
+Verified the new token actually worked - `policies: ["root"]`, a real `vault secrets list`
+call succeeding - *before* touching Secrets Manager or revoking anything, since a broken new
+token found after revoking the old one means a hard lockout, recoverable only by running this
+entire procedure again. Only once that was confirmed: wrote the new token into
+`vault-enterprise/init-output`, revoked the old one, then proved the swap actually took by
+checking both directions - the old token immediately failing `vault token lookup`, the new one
+still working.
+
+This one also needed two separate approvals mid-session for reading and then using the actual
+root token/recovery key secret - reasonable guardrails for the most sensitive credential in
+the whole build, and no different in spirit from the same care taken with the original
+`operator init` output.
+
 ## 2026-09-12 — Raft snapshots, tested the only way that actually proves anything
 
 Closed the last big gap from the certification-topic sweep: disaster recovery for Integrated

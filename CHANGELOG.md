@@ -1,6 +1,7 @@
 
 ## 2026-09-12
 ### 🚀 Features
+- *(vault)* Add Raft snapshot backup/restore, verified with a real round-trip ([8eabc60](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/8eabc60a3a574542a37df607ed79c8b79f645ba0))
 - *(vault)* Audit logging to CloudWatch via SSM State Manager ([ada0f7b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/ada0f7bea6f9fc30e51a692cc4125f43c4ad75d9))
 
 ### 📚 Documentation

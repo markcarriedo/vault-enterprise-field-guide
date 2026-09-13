@@ -15,6 +15,42 @@ Template:
 
 ---
 
+## 2026-09-13 — Root token regeneration authenticates with the current token, not `enable_unauthenticated_access`
+
+**Context:** The root token from `operator init` has no TTL — it's the one credential in this
+build that never expires on its own, making periodic regeneration (or emergency replacement,
+if ever suspected compromised) worth having as a real, tested runbook rather than a
+theoretical procedure. Attempting it hit an unexpected wall: `vault operator generate-root
+-init` returned `403 permission denied` / `invalid token` with no token set at all — the
+documented pre-2.0 behavior (recovery key fragments alone, no authentication) no longer held.
+
+**Decision:** Checked current Vault docs rather than trusting older, cached knowledge of this
+command: Vault 2.0 made `sys/generate-root` (along with `sys/rekey` and
+`sys/replication/dr/secondary/generate-operation-token`) require an authenticated token by
+default — a hardening change specifically to stop an attacker submitting bogus key fragments
+to block legitimate use of these endpoints. A config flag,
+`enable_unauthenticated_access = ["generate-root"]`, restores the old behavior, but
+HashiCorp's own documentation recommends against relying on it. Used the existing (about-to-be-replaced)
+root token to authenticate the request instead — no server config change needed, and it's
+already the credential this procedure exists to replace anyway.
+
+**Alternatives considered:** Setting `enable_unauthenticated_access` via SIGHUP to restore the
+old key-fragments-only flow — rejected: it would mean deliberately weakening the cluster's
+default security posture, applied via the HVD module's config, to avoid using a token that was
+sitting right there and about to be revoked regardless.
+
+**Consequences:** Verified with a real, live regeneration, not just a read of the docs:
+authenticated `-init` with the old root token, submitted 3 of the cluster's 5 recovery key
+shares to reach quorum, decoded the resulting token with the OTP, confirmed the new token
+carried `policies: ["root"]` and could make a real API call (`vault secrets list`) *before*
+touching anything else, updated Secrets Manager's `init-output` secret with the new token
+(recovery keys unchanged), then revoked the old token and confirmed it immediately failed
+`vault token lookup`. Verify-before-revoke is the operative safety rule here: a broken new
+token discovered before revocation is a retry; discovered after is a lockout recoverable only
+by running this same recovery-key procedure again.
+
+---
+
 ## 2026-09-12 — Manual S3-backed Raft snapshots, not Vault Enterprise's automated snapshot agent
 
 **Context:** Integrated Storage (Raft) needs a real disaster-recovery story beyond "3 replicas
