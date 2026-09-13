@@ -81,8 +81,8 @@ nav:
       - 2. AWS Infrastructure: guide/02-aws-infrastructure.md
       - 3. Installing Vault Enterprise: guide/03-installation.md
       - 4. Configuration: guide/04-configuration.md
-      - 5. Operations & Runbooks: guide/05-operations.md
-      - 6. Troubleshooting: guide/06-troubleshooting.md
+      - 5. Troubleshooting: guide/05-troubleshooting.md
+  - Runbooks: runbooks/index.md
   - Reference:
       - reference/architecture.md
       - reference/patterns.md

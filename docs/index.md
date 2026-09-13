@@ -10,9 +10,18 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
     ---
 
     The numbered how-to: planning, AWS infra, installation, configuration, storage,
-    auto-unseal, TLS, clustering/HA, operations, troubleshooting.
+    auto-unseal, TLS, clustering/HA, troubleshooting.
 
     [:octicons-arrow-right-24: Start reading](guide/index.md)
+
+-   __Runbooks__
+
+    ---
+
+    Day-to-day operational procedures — connecting to the cluster, testing dynamic secrets,
+    backup/restore, credential rotation. Open-ended, growing as new needs come up.
+
+    [:octicons-arrow-right-24: Browse runbooks](runbooks/index.md)
 
 -   __Reference__
 
@@ -54,9 +63,9 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 - [ ] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
       method so real workloads stop using the root token, dynamic AWS credentials via the
       AWS secrets engine, and audit logging to CloudWatch; Transit and PKI still to come
-- [ ] Operations runbooks — five so far (connecting to the cluster manually, testing dynamic
-      secrets, verifying audit logging, Raft snapshot backup/restore, root token regeneration);
-      an open-ended category, not a one-time milestone
+- [ ] [Runbooks](runbooks/index.md) — five so far (connecting to the cluster manually, testing
+      dynamic secrets, verifying audit logging, Raft snapshot backup/restore, root token
+      regeneration); an open-ended category, not a one-time milestone
 
 See the [journal](journal/index.md) for the day-by-day story, or the
 [decision log](reference/decisions.md) for why things were built the way they were.

@@ -15,6 +15,35 @@ Template:
 
 ---
 
+## 2026-09-13 — Runbooks promoted to a top-level nav section, out of the numbered Guide
+
+**Context:** `guide/05-operations.md` had grown to five substantial runbooks (connect
+manually, dynamic secrets, audit logging, Raft snapshot backup/restore, root token
+regeneration) — the largest file in the Guide, and conceptually different from the other
+numbered chapters: it's explicitly open-ended (new runbooks get added as needs come up), not a
+one-time build step like planning or installation.
+
+**Decision:** Moved it to `docs/runbooks/index.md`, added as its own top-level nav section
+(`Runbooks`, alongside `Guide`, `Reference`, `Journal`) rather than chapter 5 of the Guide.
+Guide renumbered down to end at chapter 4 (Configuration) plus Troubleshooting, now chapter 5.
+Considered folding the journal back into the changelog in the same pass (raised together,
+since journal entries had started duplicating decisions.md's reasoning almost verbatim) —
+deferred: that exact move was tried and reverted once already (see
+"Retire the journal in favor of a git-cliff changelog" / "Journal restored" below), for reasons
+that still apply. Left as-is for this round rather than re-litigating without a clearer fix in
+hand.
+
+**Alternatives considered:** Leaving it as chapter 5/6 and just splitting the file's content
+into smaller pages under `guide/` — rejected, since the actual problem wasn't file length on
+its own, it was that "Operations & Runbooks" doesn't belong in a numbered one-time-build
+sequence at all.
+
+**Consequences:** All internal cross-links (`guide/04-configuration.md`, `guide/index.md`,
+`mkdocs.yml`) updated to point at `runbooks/index.md`. Verified with `mkdocs build --strict` —
+zero broken links after the move.
+
+---
+
 ## 2026-09-13 — Root token regeneration authenticates with the current token, not `enable_unauthenticated_access`
 
 **Context:** The root token from `operator init` has no TTL — it's the one credential in this

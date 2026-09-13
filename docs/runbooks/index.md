@@ -1,13 +1,9 @@
-# Operations & Runbooks
-
-## Goal
+# Runbooks
 
 Day-to-day operational procedures for the running cluster — connecting to it, checking on it,
-and (later) things like credential rotation or onboarding a new team/app. Unlike the earlier
-numbered steps (a one-time build sequence), this page collects standalone runbooks that get
-used repeatedly, added to as new operational needs come up.
-
-## Runbooks
+credential rotation, onboarding a new team/app. Unlike the [Guide](../guide/index.md) (a
+one-time build sequence), this page collects standalone runbooks that get used repeatedly,
+added to as new operational needs come up — not a one-time milestone.
 
 ### Connect to the cluster manually
 
@@ -53,7 +49,7 @@ vault secrets list
 ```
 
 Requires the `session-manager-plugin` binary locally (`brew install --cask
-session-manager-plugin`) — see [Installing Vault Enterprise](03-installation.md) for why.
+session-manager-plugin`) — see [Installing Vault Enterprise](../guide/03-installation.md) for why.
 
 ### Test dynamic AWS secrets (AWS auth + AWS secrets engine)
 
@@ -108,7 +104,7 @@ aws sts get-caller-identity
 Optional: from your laptop (via a port-forward tunnel to a Vault node, with the root token),
 `vault lease revoke <lease_id>`, then rerun step 4's `aws sts get-caller-identity` on the demo
 client instance with the *same* exported credentials — it'll still succeed. See the
-[gotcha in Configuration](04-configuration.md#a-verified-gotcha-assumed_role-revocation-is-soft)
+[gotcha in Configuration](../guide/04-configuration.md#a-verified-gotcha-assumed_role-revocation-is-soft)
 for why.
 
 ### Verify audit logging

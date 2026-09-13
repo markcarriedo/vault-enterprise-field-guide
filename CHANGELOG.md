@@ -1,4 +1,8 @@
 
+## 2026-09-13
+### 📚 Documentation
+- *(guide)* Root token regeneration runbook, incl. a real Vault 2.0 gotcha ([5278931](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5278931f99165ae8c4cd88b37af32a41050c02b8))
+
 ## 2026-09-12
 ### 🚀 Features
 - *(vault)* Add Raft snapshot backup/restore, verified with a real round-trip ([8eabc60](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/8eabc60a3a574542a37df607ed79c8b79f645ba0))

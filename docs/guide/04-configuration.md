@@ -23,7 +23,7 @@ as tracked-but-manual CLI commands.
 
 The provider takes no credentials in its config block — like the AWS provider elsewhere in
 this repo, it reads `VAULT_ADDR`, `VAULT_TOKEN`, `VAULT_CACERT`, and `VAULT_TLS_SERVER_NAME`
-from the environment, supplied fresh each session after the [SSM tunnel](05-operations.md)
+from the environment, supplied fresh each session after the [SSM tunnel](../runbooks/index.md)
 is up. Nothing is hardcoded or persisted to disk.
 
 ### Adding a mount or app
@@ -254,7 +254,7 @@ snapshot save`/`restore`.
    configuration this Terraform provider has no dedicated resource for, more machinery than
    proving the core save/restore mechanism actually needs.
 3. The actual save/upload/restore runbook lives in
-   [Operations](05-operations.md#backup-and-restore-a-raft-snapshot) rather than here — this
+   [Runbooks](../runbooks/index.md#backup-and-restore-a-raft-snapshot) rather than here — this
    page covers the durable storage it depends on, not the day-to-day procedure.
 4. **Verified with a real, safe round-trip test, not just a successful command exit code** —
    wrote a disposable marker key *after* taking a snapshot, restored that snapshot, then

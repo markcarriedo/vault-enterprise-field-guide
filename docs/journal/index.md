@@ -7,6 +7,19 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-13 — Runbooks gets its own place in the nav
+
+Flagged by a simple observation: the operations page had quietly grown into the biggest file
+in the Guide, and it never really belonged in a numbered "do this once" sequence to begin with.
+Split it out to `docs/runbooks/index.md` as its own top-level nav section - see the
+[decision log](../reference/decisions.md) for the reasoning and what got renumbered.
+
+Also raised, in the same breath, whether the journal should fold back into the changelog -
+the last couple of entries here had drifted into restating the decision log almost word for
+word. Decided to leave the journal as-is for now rather than redo a move already tried and
+reverted once; the actual fix is just writing tighter entries here, which this one is meant to
+demonstrate.
+
 ## 2026-09-13 — Regenerating the root token, and a real Vault 2.0 surprise along the way
 
 Picked root token regeneration off the certification roadmap - the root token from `operator
