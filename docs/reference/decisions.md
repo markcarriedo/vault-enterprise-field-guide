@@ -15,6 +15,37 @@ Template:
 
 ---
 
+## 2026-09-13 — Journal retired, this time for good
+
+**Context:** Raised the previous day as a possible fix for journal entries duplicating the
+decision log almost verbatim, and deferred rather than re-litigated. The underlying problem
+didn't go away: every substantive piece of work on this project has ended up backed by a real
+commit with a reasoning body, and anything worth a paragraph of narrative has also been
+worth an ADR-style entry here. In practice the journal had become a second draft of this
+file, written after the fact, in a different voice.
+
+**Decision:** Removed `docs/journal/` entirely, along with its nav entry and every
+cross-reference to it. This decision log stays as the "why" (ADR-style, one entry per real
+choice); `CHANGELOG.md` stays the mechanical one-line-per-commit record; commit messages'
+own bodies (`git log`, `git blame`) carry per-commit reasoning that doesn't rise to the level
+of a standalone decision.
+
+**Alternatives considered:** Restoring `commit.body` rendering in `cliff.toml` to give
+commit-level reasoning a more visible home (the original 2026-09-09 approach, before the
+journal was first restored) — not done here; commit bodies are already readable via `git log`/
+GitHub without duplicating them into `CHANGELOG.md`, and the earlier revert wasn't about
+visibility of that reasoning, it was about the journal's narrative role specifically, which
+this decision removes rather than tries to preserve elsewhere.
+
+**Consequences:** This reverses the 2026-09-10 "Journal restored" decision below — recorded
+here rather than edited away, since the decision log is a chronological record, not a rewrite
+of history. No journal entry will ever again duplicate this file; going forward, if something
+feels journal-shaped (narrative texture, a dead end not worth its own ADR), it either earns a
+real decision entry or a line in the relevant guide/runbook page's own prose — not a third
+place to write it down.
+
+---
+
 ## 2026-09-13 — Runbooks promoted to a top-level nav section, out of the numbered Guide
 
 **Context:** `guide/05-operations.md` had grown to five substantial runbooks (connect
