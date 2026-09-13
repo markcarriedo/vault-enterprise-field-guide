@@ -20,6 +20,11 @@ word. Decided to leave the journal as-is for now rather than redo a move already
 reverted once; the actual fix is just writing tighter entries here, which this one is meant to
 demonstrate.
 
+Followed up the same day: one page for five runbooks was already showing its age, so split
+each into its own page under `docs/runbooks/`, `index.md` now just a landing page linking out.
+Deep links from elsewhere in the guide (Configuration's Raft snapshot mention, for one) now
+land on an actual page start instead of scrolling to an anchor mid-page.
+
 ## 2026-09-13 — Regenerating the root token, and a real Vault 2.0 surprise along the way
 
 Picked root token regeneration off the certification roadmap - the root token from `operator

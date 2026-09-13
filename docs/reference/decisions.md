@@ -42,6 +42,15 @@ sequence at all.
 `mkdocs.yml`) updated to point at `runbooks/index.md`. Verified with `mkdocs build --strict` —
 zero broken links after the move.
 
+**Follow-up (same day):** Split further — each runbook (connect manually, dynamic secrets,
+audit logging, Raft snapshot, root token regeneration) is now its own page under
+`docs/runbooks/`, with `index.md` reduced to a landing page linking to each. Shared `Gotchas`/
+`References` sections were split apart too, keeping only what's actually relevant to each
+runbook rather than one long combined list. Reason: a single-page-per-topic became awkward the
+moment there were five substantial runbooks on it — deep-linking to one (e.g. from
+Configuration's Raft snapshot mention) meant landing mid-page rather than at a real page start,
+and the shared Gotchas list no longer made clear which runbook each item belonged to.
+
 ---
 
 ## 2026-09-13 — Root token regeneration authenticates with the current token, not `enable_unauthenticated_access`

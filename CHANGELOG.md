@@ -1,6 +1,7 @@
 
 ## 2026-09-13
 ### 📚 Documentation
+- Promote Runbooks to its own top-level nav section ([3ff6922](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/3ff692275b6bde83ad6e39b4ee47ee7ccad43576))
 - *(guide)* Root token regeneration runbook, incl. a real Vault 2.0 gotcha ([5278931](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/5278931f99165ae8c4cd88b37af32a41050c02b8))
 
 ## 2026-09-12

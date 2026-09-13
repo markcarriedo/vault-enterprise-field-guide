@@ -82,7 +82,13 @@ nav:
       - 3. Installing Vault Enterprise: guide/03-installation.md
       - 4. Configuration: guide/04-configuration.md
       - 5. Troubleshooting: guide/05-troubleshooting.md
-  - Runbooks: runbooks/index.md
+  - Runbooks:
+      - Overview: runbooks/index.md
+      - Connect to the cluster manually: runbooks/connect-manually.md
+      - Test dynamic AWS secrets: runbooks/dynamic-aws-secrets.md
+      - Verify audit logging: runbooks/audit-logging.md
+      - Backup and restore a Raft snapshot: runbooks/raft-snapshot-backup-restore.md
+      - Regenerate the root token: runbooks/root-token-regeneration.md
   - Reference:
       - reference/architecture.md
       - reference/patterns.md
