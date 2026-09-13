@@ -16,9 +16,10 @@ Split it out to `docs/runbooks/index.md` as its own top-level nav section - see 
 
 Also raised, in the same breath, whether the journal should fold back into the changelog -
 the last couple of entries here had drifted into restating the decision log almost word for
-word. Decided to leave the journal as-is for now rather than redo a move already tried and
-reverted once; the actual fix is just writing tighter entries here, which this one is meant to
-demonstrate.
+word. Decided to leave the journal as-is rather than redo a move already tried and reverted
+once, and went back afterward to actually trim the duplicative entries and fold four older
+ones about the changelog/journal's own tooling into a single note - the fix flagged here,
+followed through rather than just written down.
 
 Followed up the same day: one page for five runbooks was already showing its age, so split
 each into its own page under `docs/runbooks/`, `index.md` now just a landing page linking out.
@@ -27,93 +28,54 @@ land on an actual page start instead of scrolling to an anchor mid-page.
 
 ## 2026-09-13 — Regenerating the root token, and a real Vault 2.0 surprise along the way
 
-Picked root token regeneration off the certification roadmap - the root token from `operator
-init` has no TTL, so it's the one credential in this build that never expires on its own.
-Worth having as a tested runbook, not just something assumed to work from reading the docs.
+Picked root token regeneration off the certification roadmap - the one credential in this
+build with no TTL, worth a tested runbook rather than an assumption. First attempt didn't work
+at all: `vault operator generate-root -init` came back `403 permission denied` with no token
+set, contradicting older Vault docs describing this endpoint as needing only recovery key
+fragments. Pulled the actual audit log entry for the request (a nice payoff from yesterday's
+CloudWatch work), then checked HashiCorp's current docs directly rather than trusting cached
+knowledge of the command: Vault 2.0 made `sys/generate-root` require an authenticated token by
+default, closing a real gap where an attacker could submit bogus key fragments to block
+legitimate use. See the [decision log](../reference/decisions.md) for the full reasoning and
+the verified procedure.
 
-First attempt didn't work at all: `vault operator generate-root -init` came back `403
-permission denied`, with no token set - which contradicted everything the older Vault docs
-say about this command needing only recovery key fragments, no authentication. Rather than
-assume a misconfiguration, pulled the actual audit log entry for the request (nice payoff from
-yesterday's CloudWatch work) and then checked HashiCorp's current docs directly. Confirmed:
-Vault 2.0 changed `sys/generate-root` to require an authenticated token by default - closing a
-real gap where an attacker could submit bogus key fragments to block legitimate use. A
-backward-compatible config flag exists to restore the old behavior, but HashiCorp's own
-guidance says not to bother - just supply a token. Used the existing root token, since it was
-sitting right there and about to be replaced anyway.
-
-From there the actual procedure was clean: authenticated `-init`, submitted 3 of the cluster's
-5 recovery key shares against the returned nonce, decoded the resulting token with the OTP.
-Verified the new token actually worked - `policies: ["root"]`, a real `vault secrets list`
-call succeeding - *before* touching Secrets Manager or revoking anything, since a broken new
-token found after revoking the old one means a hard lockout, recoverable only by running this
-entire procedure again. Only once that was confirmed: wrote the new token into
-`vault-enterprise/init-output`, revoked the old one, then proved the swap actually took by
-checking both directions - the old token immediately failing `vault token lookup`, the new one
-still working.
-
-This one also needed two separate approvals mid-session for reading and then using the actual
-root token/recovery key secret - reasonable guardrails for the most sensitive credential in
-the whole build, and no different in spirit from the same care taken with the original
-`operator init` output.
+Also needed two separate approvals mid-session for reading and then using the actual root
+token/recovery key secret - reasonable guardrails for the most sensitive credential in the
+whole build, no different in spirit from the care taken with the original `operator init`
+output.
 
 ## 2026-09-12 — Raft snapshots, tested the only way that actually proves anything
 
-Closed the last big gap from the certification-topic sweep: disaster recovery for Integrated
-Storage. The mechanism is simple on paper - `vault operator raft snapshot save`, `vault
-operator raft snapshot restore` - but "simple on paper" isn't the same as "verified," and a
-restore is a genuinely cluster-wide operation, not something to test carelessly against a live
-cluster.
+Closed the last big certification-topic gap: disaster recovery for Integrated Storage. Built a
+durable S3 landing spot first, reusing the Terraform state bucket's security pattern, and
+skipped Vault Enterprise's own automated snapshot agent for now - see the
+[decision log](../reference/decisions.md) for why.
 
-Built a durable landing spot first: a dedicated S3 bucket
-(`terraform/vault-config/snapshots.tf`), reusing the exact security pattern already proven out
-for the Terraform state bucket - KMS SSE with a bucket key, versioning, all public access
-blocked, an explicit deny-insecure-transport policy, 30-day expiration. Skipped Vault
-Enterprise's own automated snapshot agent for now - it needs its own IAM grant plus API-side
-config this Terraform provider has no resource for, more machinery than proving the core
-mechanism actually needs.
-
-Then the part that mattered: didn't just run `save` and `restore` and call it verified. Wrote
-a disposable marker key *after* taking the snapshot, confirmed real data was still there,
-restored the snapshot, then checked both directions - the marker gone (proof the restore
-genuinely reloaded state, not a no-op), and the real data untouched (proof it didn't nuke
-anything it shouldn't have). Checked cluster health before and after too:
-`operator raft list-peers` showed the identical three-node topology, same leader, same Cluster
-ID, both times. A restore that quietly changed cluster membership or dropped a node would be
-far worse than one that just didn't work.
-
-Everything came back clean on the first real attempt - no bugs to chase this time, just a
-mechanism that did exactly what it should.
+The part that mattered was the test, not the mechanism. "Simple on paper" (`save`, `restore`)
+isn't the same as verified, and a restore is genuinely cluster-wide - so wrote a disposable
+marker key *after* taking the snapshot, restored it, then checked both directions: the marker
+gone (proof the restore actually reloaded state, not a no-op) and real data untouched, with
+cluster topology identical before and after. A disposable, timestamped marker turns out to be
+the reusable trick here - it's the only way to tell "the restore did nothing" from "the restore
+worked," which re-checking already-known-good data can't distinguish. Everything came back
+clean on the first attempt.
 
 ## 2026-09-12 — Audit logs land in CloudWatch, after one genuine ordering bug
 
-Closed one of the cheapest, highest-value gaps left on the certification-topic gap analysis:
-audit logging, at zero coverage until now. Vault itself can't ship audit logs to CloudWatch -
-only `file`, `syslog`, `socket` - so this meant a `file` device plus the AWS CloudWatch Agent
-actually shipping that file somewhere.
+Closed the cheapest, highest-value gap left on the certification-topic sweep: audit logging,
+zero coverage until now. First instinct - bolt the CloudWatch Agent onto the HVD module's own
+bootstrap via `custom_startup_script_template` - turned out wrong once actually checked: that
+variable replaces the module's entire install script rather than extending it, not worth the
+risk to a running cluster. Used SSM State Manager instead - see the
+[decision log](../reference/decisions.md) for the full reasoning.
 
-First instinct was to bolt the agent install onto the HVD module's node bootstrap via
-`custom_startup_script_template` - reasonable-sounding, wrong once actually checked: that
-variable *replaces* the module's entire built-in install script, not extends it.
-Reimplementing Vault's own TLS/seal/retry-join install logic from scratch just to add one
-package wasn't worth the risk to a cluster that's actually running. Used AWS Systems Manager
-State Manager instead - two associations (install the agent, then configure it from an SSM
-parameter), targeting the ASG by the tag it already carries. Zero changes to the launch
-template, and it covers future instances automatically, not just today's three.
-
-Verified with a `terraform apply`, then didn't stop there: checked `describe-association-executions`
-directly rather than trusting "Apply complete." Good thing - the configure association had
-failed with "CloudWatch Agent not installed" a few seconds after the install association had
-already reported success on the exact same instances. `depends_on` between the two had
-ordered their creation in Terraform, which turned out to say nothing about the order State
-Manager actually runs them on a real instance. Re-triggered the configure step by hand once
-install had genuinely finished, then added a 30-minute recurring schedule so a future
-instance losing the same race fixes itself instead of quietly never shipping logs.
-
-Closed the loop by generating real Vault activity and reading it straight back out of
-CloudWatch Logs - confirmed the sensitive fields (`client_token`, `accessor`) come through
-HMAC-hashed by Vault's own audit device, not in the clear. "The association shows Success"
-was never going to be enough on its own, same rule as everything else in this build.
+The real find was operational, not architectural: `terraform apply` reported success, but
+`describe-association-executions` showed the configure step had actually failed a few seconds
+after install reported success on the exact same instances - `depends_on` had ordered their
+*creation* in Terraform, not their *execution* on the instance. Fixed it by hand, then added a
+recurring schedule so a future instance losing the same race heals itself. Closed the loop by
+reading real CloudWatch events back and confirming sensitive fields come through hashed, not
+by trusting "the association shows Success" alone.
 
 ## 2026-09-12 — A real client instance, a nicer YAML shape, and a proper name
 
@@ -195,17 +157,6 @@ Worked first try: token came back scoped to `inventory-service`, no human, no ro
 the same read/write/unrelated-path proof as the original KV v2 policy test rather than trusting
 that "login succeeded" was enough on its own - write and the unrelated path both came back 403.
 
-## 2026-09-10 — Changelog redo: back to day headers, now nested with type
-
-Revisited the changelog grouping from earlier today. Switching to pure type-grouping
-(Features, Bug Fixes, Docs, ...) fixed the original complaint — no more hunting through every
-day for "what changed on the Terraform side" — but it also threw away the one thing day
-grouping was good for: knowing *when* something happened without leaving the file. Nested both:
-day headers outer, type headers inner, newest-first throughout. Took a bit more Tera template
-work than the flat version (`commit_groups` only groups whatever list you hand it, so each
-day's commits have to be filtered out by hand first), but keeping both axes was worth the extra
-template complexity.
-
 ## 2026-09-10 — Mounts and policies move from HCL blocks to a YAML list
 
 Anticipated this directory growing past two resources, so followed up the initial import with
@@ -275,24 +226,23 @@ list-peers` showed all three nodes as voters, one leader, two followers.
 Three-node HA Vault Enterprise, actually running, actually initialized, actually unsealed.
 That was the goal on day one.
 
-## 2026-09-10 — Changelog and journal: drawing a clean line
+## 2026-09-10 — Changelog and journal, sorted into their final shape
 
-Asked directly - "is changelog the same as journal?" - which prompted a proper look at what
-`CHANGELOG.md` had become: each entry was rendering the full commit body underneath a bold
-summary, which is functionally what a journal entry does, just tied to one commit instead of a
-work session. Stripped the body out of the changelog template entirely (back to one bold
-summary line, nothing else) and made the journal the permanent narrative home - covers
-commit-less work, written at story-beat grain instead of one entry per commit, which is what
-keeps this page from just becoming the changelog with more words.
+Automated `CHANGELOG.md` regeneration via a self-amending post-commit hook, then spent the rest
+of the day iterating on what it should actually contain: grouped by commit type first (fixed
+"where's the Terraform stuff" but lost at-a-glance dates), then nested day headers with type
+groups inside them to get both. Caught one real bug along the way - adding a commit's own short
+hash via that same self-amending hook doesn't converge, since amending changes the hash - fixed
+by moving the whole thing to the `pre-commit` git stage, where the commit being made doesn't
+exist yet, so git-cliff only ever sees permanent hashes.
 
-Also caught and fixed a structural bug introduced the same day: adding each commit's short
-hash to its changelog line, using the same self-amending post-commit hook, doesn't converge -
-a commit's hash changes every time it's amended, so "fix the hash" and "the hash is wrong
-again" chase each other forever. Caught it running in the background, stopped it before it did
-anything but churn the local reflog, and moved the whole hook to the `pre-commit` git stage
-instead - at that point the commit being made doesn't exist yet, so `git-cliff` only ever sees
-commits whose hashes are already permanent. One (structurally unavoidable) tradeoff: a
-commit's own entry doesn't appear until the *next* commit runs the hook.
+The bigger question underneath it: where should reasoning actually live? Ruled out a GitHub
+Wiki for raw notes early on (its repo can't be initialized without first creating a page
+through the web UI - doesn't fit an automated workflow), then drew a clean line once the
+changelog started rendering full commit bodies and duplicating what the journal was already
+for: `CHANGELOG.md` stays purely mechanical, one bold line per commit; this journal carries the
+narrative; the [decision log](../reference/decisions.md) carries anything ADR-worthy. That
+division has held since.
 
 ## 2026-09-10 — Homepage polish, and the cluster is genuinely healthy
 
@@ -353,18 +303,6 @@ for a sandbox), `ec2_allow_ssm = true` so there's no need for a separate bastion
 balancer ingress restricted to the VPC's own CIDR — access was always going to be via SSM
 port-forwarding from inside the VPC, never real internet traffic.
 
-## 2026-09-10 (crossing over from 2026-09-09) — Changelog automation
-
-Manual `CHANGELOG.md` regeneration drifted 6 commits behind almost immediately — exactly the
-risk flagged when that became a manual step. Fixed it properly rather than just catching up by
-hand: a `post-commit` hook that self-amends the changelog into the very commit that triggered
-it, safe from infinite recursion since re-triggering the hook on an unchanged commit message
-produces identical output the second time around. Also iterated the actual format — grouped by
-day instead of a permanent "[Unreleased]" label, ordered newest-first to match `git log`,
-tightened into one-line-per-commit instead of a loose paragraph — before eventually removing
-the commit body from the rendered output entirely, once the journal came back and having both
-carry the same reasoning became pure duplication.
-
 ## 2026-09-09 — Prerequisites applied: VPC, KMS key, license
 
 First real infrastructure in the sandbox account: a VPC (community
@@ -411,18 +349,6 @@ chrome). Official SVG glyph as the header logo, rendered to PNG for the favicon.
 Added a GitHub Actions workflow to build and deploy the site to GitHub Pages on every push to
 `main`, using the native Pages Actions flow (no `gh-pages` branch to manage). Live at
 <https://markcarriedo.github.io/vault-enterprise-field-guide/>.
-
-## 2026-09-09 — Settling where the journal lives
-
-Considered dropping the journal entirely in favor of treating `docs/guide/` +
-`docs/reference/` as the sole published output, then a GitHub Wiki as a way to keep raw notes
-fully outside the MkDocs build — ruled out because a wiki's git repo can't be initialized
-without first creating a page through the GitHub web UI, which doesn't fit an automated
-workflow. Kept it here, in `docs/journal/`, as part of the site.
-
-(The question of where reasoning should live came up again once the changelog was built out
-further — see the entries above for how that settled: a clean division where the changelog
-stays mechanical and the journal carries the narrative.)
 
 ## 2026-09-09 — Public repo, secret scanning
 
