@@ -15,3 +15,5 @@ new operational needs come up — not a one-time milestone.
   mechanism for Integrated Storage, verified with a safe round-trip test.
 - [Regenerate the root token](root-token-regeneration.md) — the break-glass procedure using a
   quorum of recovery keys, no old token required.
+- [Recover from a lost Vault node](node-replacement.md) — what actually happens when a Raft
+  node dies and the ASG replaces it, verified against a real termination.

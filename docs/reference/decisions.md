@@ -15,6 +15,45 @@ Template:
 
 ---
 
+## 2026-09-14 — Node replacement verified against a real termination, not just Autopilot docs
+
+**Context:** A Raft-backed cluster's real disaster-recovery story includes surviving and
+recovering from losing an individual node, not just a full-cluster snapshot restore. Vault's
+Autopilot feature governs a lot of this automatically, but its exact defaults (whether a dead
+voter's Raft entry cleans itself up, whether a replacement auto-promotes to voter) were worth
+confirming against this specific build rather than assumed from general docs.
+
+**Decision:** Terminated a real, healthy follower (`i-040ef4e353661db7d`) via
+`aws autoscaling terminate-instance-in-auto-scaling-group` (not a raw `ec2 terminate-instances`,
+so the ASG launches a replacement immediately without a separate scale-out step) and observed
+the full recovery live. Confirmed beforehand: this build's Autopilot config has
+`cleanup_dead_servers = false` (the Vault default; the HVD module doesn't override it) and
+`min_quorum = 0` (unset), with each node running as a `zone-voter` — one voter per AZ, no spare
+non-voters to promote.
+
+**Alternatives considered:** Documenting the theoretical procedure from Vault/module docs
+without touching the live cluster — rejected once weighed against the value of catching a real
+gap: docs alone wouldn't have surfaced the bootstrap race described below, and "should work
+based on defaults" isn't the same standard applied to anything else in this build.
+
+**Consequences:** Verified two real, worth-documenting behaviors. First: a dead voter is
+**demoted to non-voter automatically** within seconds (visible as `Voter: false` in
+`list-peers`) even with `cleanup_dead_servers = false` — but its peer entry is never fully
+**removed** without a manual `vault operator raft remove-peer`, so repeated node losses would
+quietly accumulate stale entries and erode real fault tolerance behind an apparently-healthy
+cluster. Second, and unplanned: the first replacement instance's cloud-init user-data script
+failed silently — `apt-get install unzip` lost a race for the `dpkg` lock against
+`unattended-upgrades` running at the same moment during boot, aborting the Vault install before
+it started. The ASG kept reporting that instance "Healthy" throughout, since its health check
+is EC2-status-only and has no visibility into whether Vault itself ever came up — `vault
+operator raft list-peers` was the only way to tell. Terminating that broken instance and
+letting the ASG retry succeeded cleanly on the second attempt: the new node joined as a
+non-voter and was auto-promoted within about 15 seconds, matching Autopilot's default 10s
+server-stabilization window. A final `remove-peer` on the original dead node's ID restored the
+cluster to exactly 3 real voters, same leader, same Cluster ID, real data unaffected throughout.
+
+---
+
 ## 2026-09-13 — Runbooks promoted to a top-level nav section, out of the numbered Guide
 
 **Context:** `guide/05-operations.md` had grown to five substantial runbooks (connect

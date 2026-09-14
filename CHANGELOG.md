@@ -1,6 +1,7 @@
 
 ## 2026-09-13
 ### 📚 Documentation
+- *(journal)* Trim duplicative entries, fold tooling meta-entries together ([53a52dc](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/53a52dc8bec6de3f6fedca6370c57c84563a0c54))
 - Drop the Changelog card from the front page ([f854c83](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/f854c83007f64176f80c0d5a222a698b940f81d8))
 - Retire the journal for good ([efd9655](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/efd965571ae11db2aeb9644a233fa69ca63bdf26))
 - *(runbooks)* Split each runbook into its own page ([91e0da8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/91e0da894e7ec393bab04393d16b4739923c0fdb))

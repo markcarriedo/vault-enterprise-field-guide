@@ -7,6 +7,23 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-14 — Killed a node on purpose, and the ASG's health check lied about it
+
+Picked node replacement off the roadmap - a Raft cluster's real resilience story includes
+surviving a node loss, not just a snapshot restore. Checked Autopilot's actual config on this
+cluster first rather than assuming: `cleanup_dead_servers` is off by default and the HVD module
+doesn't turn it on, so terminating a node was always going to need a manual peer cleanup step.
+Confirmed with a real termination of a healthy follower. See the
+[decision log](../reference/decisions.md) for the full before/after detail.
+
+The genuinely unplanned part: the first replacement instance's boot silently failed a `dpkg`
+lock race against `unattended-upgrades`, so Vault never actually installed - and the ASG kept
+reporting it "Healthy" the entire time, since its health check only looks at EC2 status, never
+at Vault itself. Only `vault operator raft list-peers` told the truth. Terminated the broken
+instance, let the ASG try again, and the second attempt joined cleanly and got auto-promoted to
+voter in about 15 seconds. Two real findings from one test - the kind of thing no amount of
+reading Autopilot's docs would have surfaced on its own.
+
 ## 2026-09-13 — Runbooks gets its own place in the nav
 
 Flagged by a simple observation: the operations page had quietly grown into the biggest file
