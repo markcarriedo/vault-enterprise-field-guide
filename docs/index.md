@@ -27,8 +27,8 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 
     ---
 
-    Architecture diagram, an ADR-style decision log, and a glossary — the "why," not just the
-    "how."
+    Architecture diagram, patterns, an ADR-style decision log, and a glossary — the "why,"
+    not just the "how."
 
     [:octicons-arrow-right-24: Browse reference](reference/architecture.md)
 
@@ -53,7 +53,8 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
       leader, 2 followers), root token + recovery keys secured in Secrets Manager
 - [ ] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
       method so real workloads stop using the root token, dynamic AWS credentials via the
-      AWS secrets engine, and audit logging to CloudWatch; Transit and PKI still to come
+      AWS secrets engine, audit logging to CloudWatch, Raft snapshot storage, and Raft
+      Autopilot config; Transit and PKI still to come
 - [ ] [Runbooks](runbooks/index.md) — six so far (connecting to the cluster manually, testing
       dynamic secrets, verifying audit logging, Raft snapshot backup/restore, root token
       regeneration, node replacement); an open-ended category, not a one-time milestone

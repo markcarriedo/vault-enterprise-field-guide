@@ -1,5 +1,8 @@
 
 ## 2026-09-14
+### 🚀 Features
+- *(vault)* Manage Raft Autopilot via Terraform, correct a real assumption ([0d57201](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0d5720148741680dbdbdd27901b635c48439bfa1))
+
 ### 📚 Documentation
 - *(runbooks)* Add node replacement runbook, verified against a real termination ([0c69c5b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0c69c5b30b61aba132b56cca78b1e3fc6911beac))
 

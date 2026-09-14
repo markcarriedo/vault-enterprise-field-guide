@@ -67,6 +67,10 @@ flowchart TB
 - **Raft snapshots** — a dedicated, versioned, KMS-encrypted S3 bucket, populated by an
   operator manually running `vault operator raft snapshot save` + `aws s3 cp` (not Vault
   Enterprise's own automated snapshot agent — see the [decision log](decisions.md)).
+- **Raft Autopilot** — `cleanup_dead_servers = true`, `min_quorum = 3`, Terraform-managed
+  (`vault_raft_autopilot`). A long-horizon safety net for stale dead-peer entries, not a
+  substitute for the manual cleanup step in
+  [node replacement](../runbooks/node-replacement.md) — see the decision log for why.
 - **Access** — SSM port-forwarding straight to a node's own port, no bastion host, no public
   ingress path at all.
 
