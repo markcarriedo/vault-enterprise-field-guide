@@ -74,6 +74,6 @@ flowchart TB
 
 Transit (encryption as a service), PKI, and Namespaces — see the [guide](../guide/index.md)
 for what's next. Static secrets (KV v2), a least-privilege policy, an AWS auth method,
-dynamic AWS credentials via the AWS secrets engine, audit logging to CloudWatch, and Raft
-snapshot backup/restore are already live, all Terraform-managed — see
-[Configuration](../guide/04-configuration.md).
+dynamic AWS credentials via the AWS secrets engine, audit logging to CloudWatch, Raft
+snapshot backup/restore, and Raft Autopilot configuration are already live, all
+Terraform-managed — see [Configuration](../guide/04-configuration.md).

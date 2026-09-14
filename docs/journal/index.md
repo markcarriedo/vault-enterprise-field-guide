@@ -7,6 +7,22 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-14 — Turned on cleanup_dead_servers, then found out it doesn't mean what it sounds like
+
+Asked directly after the node-replacement test: should `cleanup_dead_servers` actually be
+turned on, since we'd just done its job by hand? Found the `hashicorp/vault` provider already
+has a resource for it - added `terraform/vault-config/autopilot.tf`, clean single-resource
+apply, no drift elsewhere.
+
+Then didn't just assume it fixed the gap - repeated the exact same termination test to check.
+It didn't clean up automatically, and the reason turned out to matter: removal is gated on
+`dead_server_last_contact_threshold` (24h by default), not on `cleanup_dead_servers` alone,
+and HashiCorp's own docs recommend keeping that threshold high on purpose, to avoid pruning a
+node that's only briefly unreachable. So the change is real and worth keeping as a long-horizon
+safety net, but the manual `remove-peer` step in the runbook stays exactly as written. Worth
+remembering: a config flag named after the behavior you want doesn't always mean the behavior
+happens on the timescale you assumed.
+
 ## 2026-09-14 — Killed a node on purpose, and the ASG's health check lied about it
 
 Picked node replacement off the roadmap - a Raft cluster's real resilience story includes

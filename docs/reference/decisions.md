@@ -15,6 +15,35 @@ Template:
 
 ---
 
+## 2026-09-14 — Autopilot config moved into Terraform, then re-verified live (and a correction)
+
+**Context:** Following up directly on the node-replacement test below: the `hashicorp/vault`
+provider turns out to have a `vault_raft_autopilot` resource, unused here even though every
+other piece of Vault's own config in this build is Terraform-managed. Setting
+`cleanup_dead_servers = true` looked like it would close the exact gap the node-replacement
+test found - the need for a manual `vault operator raft remove-peer` after every node loss.
+
+**Decision:** Added `terraform/vault-config/autopilot.tf` (`vault_raft_autopilot.config`,
+`cleanup_dead_servers = true`, `min_quorum = 3` - matching this cluster's real node count, not
+a guess). `terraform plan` showed a clean single-resource create with no drift elsewhere;
+applied and confirmed live via `vault operator raft autopilot get-config`.
+
+**Consequences - correcting the assumption, not just applying the config:** Repeated the same
+node-termination test from the entry below specifically to check whether the dead peer would
+now clean itself up automatically. It didn't, within the several minutes the test ran -
+`autopilot state` showed the dead node's `NodeStatus` still `alive` (only `Healthy: false`)
+well after the replacement had joined and been promoted. Checked HashiCorp's current docs
+directly rather than assuming a config bug: automatic pruning is gated on
+`dead_server_last_contact_threshold` (default 24h), not on `cleanup_dead_servers` alone, and
+HashiCorp explicitly recommends keeping that threshold high specifically to avoid pruning a
+node that's only briefly unreachable. So the change is real and worth keeping - it's a
+genuine safety net against a stale entry being forgotten forever - but it does **not** make
+`remove-peer` optional after a real node loss; the runbook's manual cleanup step stays as
+written. Verified the full recovery a second time end-to-end (new node joined, promoted to
+voter, dead peer manually removed) - back to exactly 3 real voters, data untouched.
+
+---
+
 ## 2026-09-14 — Node replacement verified against a real termination, not just Autopilot docs
 
 **Context:** A Raft-backed cluster's real disaster-recovery story includes surviving and

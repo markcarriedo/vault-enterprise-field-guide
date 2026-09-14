@@ -8,9 +8,9 @@ deliberately, not as a routine check.
 
 ```bash
 # 1. Fresh AWS credentials, then confirm cluster health and Autopilot config
-#    before touching anything - Autopilot's cleanup_dead_servers defaults to
-#    false, and this build doesn't turn it on, so a dead voter needs manual
-#    cleanup rather than disappearing on its own
+#    before touching anything. This cluster manages Autopilot config via
+#    Terraform (terraform/vault-config/autopilot.tf): cleanup_dead_servers is
+#    on, but that alone doesn't make cleanup prompt - see step 5.
 vault operator raft list-peers
 vault operator raft autopilot get-config
 ```
@@ -46,7 +46,8 @@ aws ssm send-command --instance-ids <new-instance-id> \
 
 ```bash
 # 5. Once the replacement genuinely joins as a voter, remove the dead peer's
-#    now-stale entry - it won't clean itself up
+#    now-stale entry by hand - cleanup_dead_servers being on does NOT make
+#    this prompt (see the gotcha below), so don't wait for it
 vault operator raft remove-peer <dead-node-instance-id>
 vault operator raft list-peers
 # expect exactly 3 voters again, all real, healthy nodes
@@ -59,22 +60,38 @@ vault operator raft autopilot state
 vault kv get -field=message secret/inventory-service/hello
 ```
 
-Verified end-to-end on this cluster: a terminated follower's Raft entry was auto-demoted to
+Verified end-to-end on this cluster, twice. First pass (Autopilot at Vault's raw defaults,
+`cleanup_dead_servers = false`): a terminated follower's Raft entry was auto-demoted to
 non-voter within seconds, but never auto-removed. The first replacement instance's bootstrap
-actually failed silently - a `dpkg` lock race with `unattended-upgrades` broke its
+also failed silently - a `dpkg` lock race with `unattended-upgrades` broke its
 `apt-get install`, and the ASG kept reporting it "Healthy" the entire time since it only checks
 EC2-level status. Terminating that broken instance and letting the ASG retry succeeded cleanly:
 the second replacement installed Vault, joined Raft as a non-voter, and was auto-promoted to
 voter within about 15 seconds. `raft remove-peer` on the original dead node's ID brought the
-cluster back to exactly 3 real voters, same leader, same Cluster ID, unaffected throughout.
+cluster back to exactly 3 real voters.
+
+Second pass, after turning `cleanup_dead_servers` on via Terraform: repeated the same
+termination and expected the dead peer to disappear on its own once the replacement joined.
+It didn't - `autopilot state` showed the dead node's `NodeStatus` still `"alive"` (just
+`Healthy: false`) more than two minutes after termination. Automatic pruning only fires once a
+node crosses `dead_server_last_contact_threshold` (24h by default) - `cleanup_dead_servers`
+being on doesn't change that gate. `remove-peer` was still needed by hand. See the decision log
+for why the 24h default is correct to keep, not something to lower.
 
 ## Gotchas
 
-- Autopilot's `cleanup_dead_servers` defaults to `false`, and the HVD module doesn't set it.
-  A dead voter gets demoted to non-voter automatically, but its Raft peer entry stays until a
-  manual `vault operator raft remove-peer`. Left unaddressed across repeated node losses, stale
-  entries accumulate and quietly erode real fault tolerance even though `list-peers` still
-  shows the cluster as "healthy."
+- A dead voter gets demoted to non-voter automatically regardless of `cleanup_dead_servers`,
+  but its Raft peer entry only gets *removed* once the node's Autopilot `NodeStatus` transitions
+  from `alive` to `failed` - which requires `dead_server_last_contact_threshold` (24h by
+  default) of continuous unreachability, not just a few minutes of being unhealthy. In practice
+  this means `cleanup_dead_servers = true` is a long-horizon safety net against forgetting to
+  clean up, not a substitute for the manual `remove-peer` step above. HashiCorp's own docs
+  explicitly recommend keeping that threshold high (this build left it at the 24h default)
+  rather than lowering it, since a short threshold risks pruning a node that's only briefly
+  unreachable (a restart, a snapshot load, an HSM delay) - turning a recoverable blip into an
+  unnecessary Raft membership change. Left unaddressed across repeated node losses, stale
+  entries still accumulate and quietly erode real fault tolerance even though `list-peers`
+  keeps showing the cluster as "healthy."
 - The ASG's own health check is EC2-status-only - it cannot tell whether Vault itself ever
   started. A node that fails partway through its install script can sit there reporting
   "Healthy" indefinitely. Trust `vault operator raft list-peers`/`autopilot state` over ASG

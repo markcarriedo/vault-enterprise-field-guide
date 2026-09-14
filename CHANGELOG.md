@@ -1,4 +1,8 @@
 
+## 2026-09-14
+### 📚 Documentation
+- *(runbooks)* Add node replacement runbook, verified against a real termination ([0c69c5b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0c69c5b30b61aba132b56cca78b1e3fc6911beac))
+
 ## 2026-09-13
 ### 📚 Documentation
 - *(journal)* Trim duplicative entries, fold tooling meta-entries together ([53a52dc](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/53a52dc8bec6de3f6fedca6370c57c84563a0c54))
