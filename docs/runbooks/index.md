@@ -21,3 +21,5 @@ new operational needs come up — not a one-time milestone.
   identity, confirm it can never read or export the key, verify rotation.
 - [Test PKI certificate issuance](pki-certificates.md) — issue and chain-verify a real
   certificate as the app identity, confirm it can't revoke certs or manage the CA.
+- [Test dynamic database credentials](database-credentials.md) — connect to a real Postgres
+  instance with app-issued credentials, confirm revocation genuinely works.

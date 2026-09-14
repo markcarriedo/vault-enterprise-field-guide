@@ -54,11 +54,12 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
 - [x] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
       method so real workloads stop using the root token, dynamic AWS credentials via the
       AWS secrets engine, audit logging to CloudWatch, Raft snapshot storage, Raft Autopilot
-      config, Transit (encryption as a service), and PKI (Vault as a CA)
-- [ ] [Runbooks](runbooks/index.md) — eight so far (connecting to the cluster manually, testing
+      config, Transit (encryption as a service), PKI (Vault as a CA), and the database secrets
+      engine (dynamic Postgres credentials via a real RDS instance)
+- [ ] [Runbooks](runbooks/index.md) — nine so far (connecting to the cluster manually, testing
       dynamic secrets, verifying audit logging, Raft snapshot backup/restore, root token
-      regeneration, node replacement, Transit encryption, PKI certificate issuance); an
-      open-ended category, not a one-time milestone
+      regeneration, node replacement, Transit encryption, PKI certificate issuance, dynamic
+      database credentials); an open-ended category, not a one-time milestone
 
 See the [journal](journal/index.md) for the day-by-day story, or the
 [decision log](reference/decisions.md) for why things were built the way they were.

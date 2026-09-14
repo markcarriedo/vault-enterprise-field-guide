@@ -7,6 +7,28 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-14 — The database engine, a real RDS bug, and a "did revocation actually work" scare
+
+Surveyed the full Vault docs rather than just the exam objectives this time, looking for
+anything genuinely unimplemented. Database secrets engine won - same dynamic-credential story
+as the AWS secrets engine, but for a real database. First time this build needed genuinely new,
+continuously-billed infrastructure - flagged the RDS cost before creating anything, confirmed,
+then built a small Postgres instance reachable only from the Vault nodes and the demo client.
+
+Had a real scare during testing: revoked a lease, immediately reconnected with the same
+credentials, and it still worked. Looked like a broken revocation. Turned out to be two
+separate problems layered on top of each other - `vault lease revoke` defaults to async and
+returns before the work is actually done, and separately, the revocation SQL itself
+(`REASSIGN OWNED BY`) was failing outright with a permission error every time, async or not.
+RDS's master user isn't a true Postgres superuser the way a self-hosted install's admin would
+be, so the standard revocation pattern shown everywhere needs one extra grant at creation time
+that nothing in Vault's own docs mentions. Fixed both, then proved it properly: revoked
+synchronously, confirmed the connection failed, then confirmed directly against `pg_roles` as
+the master user that the role was actually gone, not just unreachable for some other reason.
+Rotated the root credential last and checked `terraform plan` stayed clean afterward - Vault
+never hands the real password back to anyone, Terraform included, so there's nothing left for a
+future apply to accidentally revert.
+
 ## 2026-09-14 — PKI: two CAs, one wrong chain-verify, one real lesson
 
 Picked PKI off the roadmap next - Vault as a certificate authority, issuing short-lived certs

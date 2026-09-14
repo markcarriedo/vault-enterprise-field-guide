@@ -92,6 +92,7 @@ nav:
       - Recover from a lost Vault node: runbooks/node-replacement.md
       - Test Transit encryption: runbooks/transit-encryption.md
       - Test PKI certificate issuance: runbooks/pki-certificates.md
+      - Test dynamic database credentials: runbooks/database-credentials.md
   - Reference:
       - reference/architecture.md
       - reference/patterns.md

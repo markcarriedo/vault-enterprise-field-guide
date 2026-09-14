@@ -15,6 +15,49 @@ Template:
 
 ---
 
+## 2026-09-14 — Database secrets engine: a real RDS instance, and a real RDS-specific bug
+
+**Context:** Surveyed the full Vault docs (not just the certification objectives) for anything
+genuinely unimplemented and realistically demonstrable on this sandbox's actual infrastructure.
+The database secrets engine came out on top — the same "dynamic, short-lived credential" story
+as the AWS secrets engine, applied to a real database instead of AWS STS. Unlike every feature
+so far, this one couldn't reuse existing infrastructure — it needed a real, continuously-billed
+RDS instance, so this was confirmed with the user before creating anything (~$13-15/month for
+a `db.t4g.micro`, 20GB gp3, single-AZ).
+
+**Decision:** One RDS Postgres instance (17.11, confirmed available in this region before
+pinning it), reachable only from the Vault nodes' security group (connection management) and
+the demo client's (actually using issued credentials) — looked up by name via
+`data "aws_security_group"`, not hardcoded. A `database` mount through the existing generic
+YAML pattern, one connection (`verify_connection = true`, so Vault proves it can actually reach
+Postgres at apply time), and one role scoped to `inventory-service` with 5m/1h TTLs.
+
+**Alternatives considered:** None seriously on the database engine choice — MySQL, MSSQL, and
+others exist, but Postgres is the most standard choice for a cert-topic demonstration and the
+sandbox already runs entirely on AWS-native services elsewhere. Skipping RDS and using a
+locally-run Postgres container was briefly a candidate but abandoned - it would run on a Vault
+node or the demo client, both of which are meant to model real, minimal-permission
+identities, not double as ad hoc database hosts.
+
+**Consequences:** Found a real, undocumented RDS-specific bug the same way this build always
+finds them - by actually testing revocation, not trusting the standard example config.
+`REASSIGN OWNED BY` (part of the commonly-shown Postgres revocation pattern) failed with
+`permission denied to reassign objects` - RDS's master user is deliberately not a true Postgres
+superuser, and that statement requires either superuser or membership in the role being
+reassigned. Fixed by adding `GRANT "{{name}}" TO vaultroot;` to `creation_statements`. Also
+caught a testing-methodology mistake worth keeping as a lesson: `vault lease revoke` defaults
+to async (HTTP 202, queued), so a connection test run immediately after a revoke can still
+succeed - looking exactly like a failed revocation when it's actually just not finished.
+`-sync` resolved it. Verified the complete story end-to-end from the app's real identity, not
+root: connected to real Postgres with issued credentials, ran a real query, synchronously
+revoked, confirmed both the connection *and* the underlying Postgres role were genuinely gone
+(cross-checked directly via `pg_roles`, not just a failed connection). Rotated the connection's
+root credential as a final step and confirmed `terraform plan` showed zero drift immediately
+after - the provider's `password` field is write-only and never read back from Vault's API, so
+Terraform structurally cannot detect or revert a live rotation.
+
+---
+
 ## 2026-09-14 — PKI: root/intermediate two-tier, root never issues a leaf directly
 
 **Context:** Next roadmap item: Vault as a certificate authority, not just a secrets store. The

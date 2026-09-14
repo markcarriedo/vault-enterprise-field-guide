@@ -28,6 +28,9 @@ mounts:
     type: pki
     description: "Intermediate CA - issues all real leaf certs. See guide/04-configuration.md"
     max_lease_ttl_seconds: 157680000 # 5y - must cover the intermediate cert's own TTL
+  database:
+    type: database
+    description: "Dynamic database credentials - see guide/04-configuration.md"
 
 apps:
   inventory-service:

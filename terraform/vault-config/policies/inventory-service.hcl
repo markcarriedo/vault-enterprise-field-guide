@@ -31,3 +31,10 @@ path "transit/decrypt/inventory-service" {
 path "pki_int/issue/inventory-service" {
   capabilities = ["create", "update"]
 }
+
+# Dynamic database credentials, scoped to this app's own role - never
+# touches database/config/postgres (the connection's own root credential
+# config) or database/rotate-root/postgres (operator-only).
+path "database/creds/inventory-service" {
+  capabilities = ["read"]
+}

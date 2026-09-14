@@ -15,6 +15,7 @@ flowchart TB
             V2["Vault node 2\nfollower"]
             V3["Vault node 3\nfollower"]
             App["inventory-service\ndemo client - SSM access only"]
+            RDS["RDS Postgres\nvault-demo-postgres"]
         end
         KMS["AWS KMS\nauto-unseal key"]
         SM["Secrets Manager\nlicense, TLS cert/key/CA, init output"]
@@ -41,6 +42,8 @@ flowchart TB
     V2 -.->|"CloudWatch Agent\n(SSM-managed)"| CW
     V3 -.->|"CloudWatch Agent\n(SSM-managed)"| CW
     You -.->|"manual save/upload,\ndownload/restore"| S3
+    V1 -.->|"manages roles\n(database secrets engine)"| RDS
+    App -->|"connects with\nissued credentials"| RDS
 ```
 
 ## Components
@@ -78,6 +81,12 @@ flowchart TB
   (intermediate, does all real leaf-certificate issuance). `inventory-service` can request
   certificates from its own role but has no access to revoke them, read CA config, or list
   other issued certs.
+- **Database secrets engine** — a small RDS Postgres instance (`db.t4g.micro`, no real data),
+  reachable only from the Vault nodes (connection management) and the demo client (using
+  issued credentials). The first piece of infrastructure in this build with an ongoing AWS
+  cost beyond what was already running. `inventory-service` gets a short-lived, genuinely
+  revocable Postgres role per request — never the database's own root credential, which Vault
+  rotates to a value nothing else knows.
 - **Access** — SSM port-forwarding straight to a node's own port, no bastion host, no public
   ingress path at all.
 
@@ -87,5 +96,5 @@ Namespaces, and other auth methods for human operators (GitHub, etc.) — see th
 [guide](../guide/index.md) for what's next. Static secrets (KV v2), a least-privilege policy,
 an AWS auth method, dynamic AWS credentials via the AWS secrets engine, audit logging to
 CloudWatch, Raft snapshot backup/restore, Raft Autopilot configuration, Transit (encryption as
-a service), and PKI (Vault as a CA) are already live, all Terraform-managed — see
-[Configuration](../guide/04-configuration.md).
+a service), PKI (Vault as a CA), and the database secrets engine are already live, all
+Terraform-managed — see [Configuration](../guide/04-configuration.md).

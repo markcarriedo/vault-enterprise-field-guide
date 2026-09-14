@@ -1,6 +1,7 @@
 
 ## 2026-09-14
 ### 🚀 Features
+- *(vault)* PKI secrets engine - two-tier CA, root never issues a leaf ([c0b293c](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/c0b293cd6a543228213a4e31df85c142e4e32360))
 - *(vault)* Transit secrets engine, app can use a key but never see it ([7db563e](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/7db563eced39f4653e66758d98e1666e44cc11b1))
 - *(vault)* Manage Raft Autopilot via Terraform, correct a real assumption ([0d57201](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0d5720148741680dbdbdd27901b635c48439bfa1))
 

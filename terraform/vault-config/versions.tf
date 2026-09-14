@@ -28,7 +28,7 @@ terraform {
 # VAULT_TLS_SERVER_NAME from the environment automatically (same as the CLI), consistent
 # with how AWS credentials are handled everywhere else in this repo: nothing hardcoded,
 # nothing persisted, supplied fresh per session. Requires the SSM tunnel from
-# guide/05-operations.md to be running first.
+# runbooks/connect-manually.md to be running first.
 provider "vault" {}
 
 # Used to look up the Vault nodes' own IAM role by name (auth.tf,
