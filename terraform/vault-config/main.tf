@@ -5,10 +5,11 @@ locals {
 resource "vault_mount" "this" {
   for_each = local.config.mounts
 
-  path        = each.key
-  type        = each.value.type
-  description = try(each.value.description, null)
-  options     = try(each.value.options, null)
+  path                  = each.key
+  type                  = each.value.type
+  description           = try(each.value.description, null)
+  options               = try(each.value.options, null)
+  max_lease_ttl_seconds = try(each.value.max_lease_ttl_seconds, null)
 }
 
 resource "vault_policy" "this" {

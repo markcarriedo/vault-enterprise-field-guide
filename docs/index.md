@@ -51,14 +51,14 @@ on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up 
       Integrated Storage (Raft), running `2.1.0+ent`
 - [x] Initialized & unsealed — auto-unseal via KMS, 3/3 nodes confirmed as Raft peers (1
       leader, 2 followers), root token + recovery keys secured in Secrets Manager
-- [ ] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
+- [x] Configuration — static secrets (KV v2), a verified least-privilege policy, an AWS auth
       method so real workloads stop using the root token, dynamic AWS credentials via the
       AWS secrets engine, audit logging to CloudWatch, Raft snapshot storage, Raft Autopilot
-      config, and Transit (encryption as a service); PKI still to come
-- [ ] [Runbooks](runbooks/index.md) — seven so far (connecting to the cluster manually, testing
+      config, Transit (encryption as a service), and PKI (Vault as a CA)
+- [ ] [Runbooks](runbooks/index.md) — eight so far (connecting to the cluster manually, testing
       dynamic secrets, verifying audit logging, Raft snapshot backup/restore, root token
-      regeneration, node replacement, Transit encryption); an open-ended category, not a
-      one-time milestone
+      regeneration, node replacement, Transit encryption, PKI certificate issuance); an
+      open-ended category, not a one-time milestone
 
 See the [journal](journal/index.md) for the day-by-day story, or the
 [decision log](reference/decisions.md) for why things were built the way they were.

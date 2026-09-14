@@ -74,13 +74,18 @@ flowchart TB
 - **Transit** — encryption as a service. `inventory-service` (the demo client) can encrypt and
   decrypt through the `transit/` mount but has no policy access to the key's own metadata or
   export paths, so it can use the key without ever seeing it.
+- **PKI** — a two-tier CA: `pki` (root, self-signed, signs only the intermediate) and `pki_int`
+  (intermediate, does all real leaf-certificate issuance). `inventory-service` can request
+  certificates from its own role but has no access to revoke them, read CA config, or list
+  other issued certs.
 - **Access** — SSM port-forwarding straight to a node's own port, no bastion host, no public
   ingress path at all.
 
 ## Not yet built
 
-PKI and Namespaces — see the [guide](../guide/index.md) for what's next. Static secrets (KV
-v2), a least-privilege policy, an AWS auth method, dynamic AWS credentials via the AWS secrets
-engine, audit logging to CloudWatch, Raft snapshot backup/restore, Raft Autopilot
-configuration, and Transit (encryption as a service) are already live, all Terraform-managed —
-see [Configuration](../guide/04-configuration.md).
+Namespaces, and other auth methods for human operators (GitHub, etc.) — see the
+[guide](../guide/index.md) for what's next. Static secrets (KV v2), a least-privilege policy,
+an AWS auth method, dynamic AWS credentials via the AWS secrets engine, audit logging to
+CloudWatch, Raft snapshot backup/restore, Raft Autopilot configuration, Transit (encryption as
+a service), and PKI (Vault as a CA) are already live, all Terraform-managed — see
+[Configuration](../guide/04-configuration.md).

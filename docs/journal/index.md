@@ -7,6 +7,25 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-14 — PKI: two CAs, one wrong chain-verify, one real lesson
+
+Picked PKI off the roadmap next - Vault as a certificate authority, issuing short-lived certs
+on demand rather than storing a long-lived one. Went with the two-tier root/intermediate
+pattern HashiCorp's own docs recommend rather than the simpler single-mount version, for the
+same reason as everything else scoped narrowly in this build: the root should only ever sign
+the intermediate, never hand out leaf certs itself. See the
+[decision log](../reference/decisions.md) for the full chain of Terraform resources that took.
+
+Made a genuine mistake while verifying it, worth keeping rather than smoothing over: tried
+chain-verifying the issued certificate against the cluster's own TLS CA - the one that's been
+sitting in `vault-enterprise/tls-ca-bundle` since the very first installation step - and got
+"unable to get local issuer certificate." Two completely separate CAs in this build now, and
+grabbing the wrong one is an easy mistake to make. Redid it against the actual PKI root
+(`pki/cert/ca`) and the chain verified cleanly. From there the rest held up exactly as
+designed: the app identity could request a cert but not revoke it, read the CA config, or list
+other issued certs - all a clean 403 - and an operator's revocation showed up on the CRL within
+seconds.
+
 ## 2026-09-14 — Transit, and the security model actually held up under test
 
 Picked Transit off the roadmap - encryption as a service, the real point being that an app can

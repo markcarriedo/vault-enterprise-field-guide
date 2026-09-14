@@ -24,3 +24,10 @@ path "transit/encrypt/inventory-service" {
 path "transit/decrypt/inventory-service" {
   capabilities = ["update"]
 }
+
+# Issue certs from this app's own PKI role only - never touches the root
+# (pki/) or intermediate (pki_int/) mounts' own management paths (sign-verbatim,
+# CA info, revoke-with-key, etc.), just the narrow issue/<role> endpoint.
+path "pki_int/issue/inventory-service" {
+  capabilities = ["create", "update"]
+}

@@ -15,6 +15,45 @@ Template:
 
 ---
 
+## 2026-09-14 — PKI: root/intermediate two-tier, root never issues a leaf directly
+
+**Context:** Next roadmap item: Vault as a certificate authority, not just a secrets store. The
+question worth getting right up front was the CA topology — a single mount that both signs
+itself and issues every leaf certificate is simpler, but it's explicitly not what HashiCorp's
+own PKI guidance recommends.
+
+**Decision:** Two mounts, `pki` (root) and `pki_int` (intermediate), wired through five PKI-
+specific Terraform resources: generate the root internally, request an intermediate CSR, sign
+that CSR with the root, install the signed cert back onto the intermediate, then configure
+issuing/CRL URLs on both. The root has no role of its own — it only ever signs the
+intermediate. All real leaf-certificate issuance goes through `pki_int` and one narrowly-scoped
+role, `inventory-service` (`allowed_domains = ["inventory-service.svc.internal"]`,
+`allow_bare_domains = true`, `allow_subdomains = false`). `type = "internal"` on both root and
+intermediate key generation — private keys never leave Vault, same principle as Transit's
+`exportable = false`. Extended the existing generic mount `for_each` in `main.tf` with one new
+field, `max_lease_ttl_seconds`, since PKI's default 32-day mount TTL can't hold a root cert
+meant to last years.
+
+**Alternatives considered:** A single mount signing its own leaf certificates — rejected on the
+same "very few people need root access, many need to issue leaves" reasoning HashiCorp's own
+docs give; a compromised or over-permissioned single mount would mean the CA's entire trust
+anchor is exposed to routine issuance traffic, not just the rare act of minting a new
+intermediate.
+
+**Consequences:** Hit two small but real issues fixed the same session: PKI role TTLs
+(`ttl`/`max_ttl`) needed to be second-based strings (`"86400"`, not `"24h"`) to match what
+Vault's API actually echoes back in state, avoiding a perpetual `terraform plan` diff. Verified
+end-to-end from the app's own AWS-auth identity, not root: requested a real certificate,
+verified the full chain with `openssl` against the actual PKI root CA (a genuine mistake made
+once during testing — verifying against the cluster's *own*, unrelated TLS CA first, which
+correctly failed with "unable to get local issuer certificate" — worth keeping as a documented
+gotcha rather than smoothing over). Confirmed the app was denied revoking its own certificate,
+reading CA config, and listing issued certs (all 403), then revoked the certificate as an
+operator and confirmed the serial actually appeared on the CRL, not just that the revoke
+command returned success.
+
+---
+
 ## 2026-09-14 — Transit: an app identity that can use a key but never see it
 
 **Context:** Next item off the certification roadmap: the Transit secrets engine, Vault as
