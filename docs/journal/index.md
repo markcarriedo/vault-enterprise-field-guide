@@ -7,6 +7,24 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-14 — Transit, and the security model actually held up under test
+
+Picked Transit off the roadmap - encryption as a service, the real point being that an app can
+use a key without ever seeing it. Mount and key went in through the same generic YAML pattern
+everything else already uses, so the interesting part was the policy: `update` on encrypt and
+decrypt only, nothing on the key's own metadata or export paths. See the
+[decision log](../reference/decisions.md) for the full reasoning.
+
+Didn't just trust the policy file - logged in as the actual app identity and tried to read and
+export the key directly. Both came back a clean 403, while encrypt/decrypt round-tripped real
+data perfectly. Picked up a genuine, reproducible Enterprise HA quirk along the way: the very
+first request after a fresh login occasionally 412s going through the load balancer, since the
+login write and the next read can land on different Raft nodes before they've caught up with
+each other. Resolved on retry every time - documented as a real characteristic of this access
+path, not something to paper over. Rotated the key afterward and confirmed old ciphertext still
+decrypts under its original version while new writes move to the new one automatically, which
+is really the whole point of a versioned key.
+
 ## 2026-09-14 — Turned on cleanup_dead_servers, then found out it doesn't mean what it sounds like
 
 Asked directly after the node-replacement test: should `cleanup_dead_servers` actually be

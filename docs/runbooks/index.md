@@ -17,3 +17,5 @@ new operational needs come up — not a one-time milestone.
   quorum of recovery keys, no old token required.
 - [Recover from a lost Vault node](node-replacement.md) — what actually happens when a Raft
   node dies and the ASG replaces it, verified against a real termination.
+- [Test Transit encryption](transit-encryption.md) — encrypt/decrypt real data as the app
+  identity, confirm it can never read or export the key, verify rotation.

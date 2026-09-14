@@ -71,13 +71,16 @@ flowchart TB
   (`vault_raft_autopilot`). A long-horizon safety net for stale dead-peer entries, not a
   substitute for the manual cleanup step in
   [node replacement](../runbooks/node-replacement.md) — see the decision log for why.
+- **Transit** — encryption as a service. `inventory-service` (the demo client) can encrypt and
+  decrypt through the `transit/` mount but has no policy access to the key's own metadata or
+  export paths, so it can use the key without ever seeing it.
 - **Access** — SSM port-forwarding straight to a node's own port, no bastion host, no public
   ingress path at all.
 
 ## Not yet built
 
-Transit (encryption as a service), PKI, and Namespaces — see the [guide](../guide/index.md)
-for what's next. Static secrets (KV v2), a least-privilege policy, an AWS auth method,
-dynamic AWS credentials via the AWS secrets engine, audit logging to CloudWatch, Raft
-snapshot backup/restore, and Raft Autopilot configuration are already live, all
-Terraform-managed — see [Configuration](../guide/04-configuration.md).
+PKI and Namespaces — see the [guide](../guide/index.md) for what's next. Static secrets (KV
+v2), a least-privilege policy, an AWS auth method, dynamic AWS credentials via the AWS secrets
+engine, audit logging to CloudWatch, Raft snapshot backup/restore, Raft Autopilot
+configuration, and Transit (encryption as a service) are already live, all Terraform-managed —
+see [Configuration](../guide/04-configuration.md).

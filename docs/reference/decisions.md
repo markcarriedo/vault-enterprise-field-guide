@@ -15,6 +15,42 @@ Template:
 
 ---
 
+## 2026-09-14 — Transit: an app identity that can use a key but never see it
+
+**Context:** Next item off the certification roadmap: the Transit secrets engine, Vault as
+encryption-as-a-service rather than a secrets store. The actual differentiator worth
+demonstrating is the security model, not just that `encrypt`/`decrypt` work — an app should be
+able to use a key without ever being able to read or export it.
+
+**Decision:** Added a `transit` mount via the existing generic YAML/`for_each` pattern (no new
+Terraform code for the mount itself) and one `vault_transit_secret_backend_key` named
+`inventory-service`, matching this build's per-app naming convention. `exportable` and
+`deletion_allowed` both left at their secure defaults (`false`) — deliberately: `exportable`
+can never be disabled once set, and `deletion_allowed = false` means a `terraform destroy`
+mistake fails loudly instead of silently discarding a key. Extended the `inventory-service`
+policy with `update` on `transit/encrypt/inventory-service` and `transit/decrypt/inventory-service`
+only — no `read` on `transit/keys/inventory-service`, no access to `transit/export/*` at all.
+
+**Alternatives considered:** None seriously — the mount-type genericness already built into
+`main.tf` meant there was no real design choice for the mount itself, and the
+encrypt/decrypt-only policy shape follows directly from what "encryption as a service" is
+supposed to mean.
+
+**Consequences:** Verified from the app's own AWS-auth identity, not root: encrypted real data,
+decrypted it back to the exact original plaintext, then confirmed both a key-metadata read and
+a key-export attempt returned a clean 403 — proving the app can use the key but never see it,
+not just asserting it from the policy file. Also hit and resolved a real, reproducible
+Enterprise HA gotcha along the way: the first request immediately after a fresh AWS-auth login
+returned `412 required index state not present` when going through the internal load balancer
+— Vault's read-after-write consistency check, since the login (a write) and the next request
+can land on different Raft nodes behind the LB before replication catches up. Resolved on
+retry every time; documented rather than worked around, since it's a real characteristic of
+this access pattern, not a bug. Finally, rotated the key as an operator and confirmed a
+ciphertext from before rotation still decrypted correctly under its original key version while
+new encryptions moved to the new version automatically — the actual value of a versioned key.
+
+---
+
 ## 2026-09-14 — Autopilot config moved into Terraform, then re-verified live (and a correction)
 
 **Context:** Following up directly on the node-replacement test below: the `hashicorp/vault`

@@ -17,6 +17,9 @@ mounts:
     description: "Static secrets (KV v2) - see guide/04-configuration.md"
     options:
       version: "2"
+  transit:
+    type: transit
+    description: "Encryption as a service - see guide/04-configuration.md"
 
 apps:
   inventory-service:

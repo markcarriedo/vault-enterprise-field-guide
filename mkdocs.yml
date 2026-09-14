@@ -90,6 +90,7 @@ nav:
       - Backup and restore a Raft snapshot: runbooks/raft-snapshot-backup-restore.md
       - Regenerate the root token: runbooks/root-token-regeneration.md
       - Recover from a lost Vault node: runbooks/node-replacement.md
+      - Test Transit encryption: runbooks/transit-encryption.md
   - Reference:
       - reference/architecture.md
       - reference/patterns.md

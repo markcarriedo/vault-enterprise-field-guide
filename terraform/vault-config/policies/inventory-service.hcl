@@ -13,3 +13,14 @@ path "secret/metadata/inventory-service/*" {
 path "aws/creds/inventory-service" {
   capabilities = ["read"]
 }
+
+# Encrypt/decrypt only - deliberately no access to transit/keys/inventory-service
+# (key metadata) or transit/export/*/inventory-service (raw key material). The
+# app proves it can use the key without ever being able to see it.
+path "transit/encrypt/inventory-service" {
+  capabilities = ["update"]
+}
+
+path "transit/decrypt/inventory-service" {
+  capabilities = ["update"]
+}

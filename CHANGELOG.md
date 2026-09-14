@@ -4,6 +4,7 @@
 - *(vault)* Manage Raft Autopilot via Terraform, correct a real assumption ([0d57201](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0d5720148741680dbdbdd27901b635c48439bfa1))
 
 ### 📚 Documentation
+- Close status-page gaps found in a self-audit ([bc27ce2](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/bc27ce28abe5a9b87f217b89a4ebf0cb22fe63a5))
 - *(runbooks)* Add node replacement runbook, verified against a real termination ([0c69c5b](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0c69c5b30b61aba132b56cca78b1e3fc6911beac))
 
 ## 2026-09-13
