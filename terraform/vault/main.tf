@@ -19,6 +19,11 @@ module "vault" {
   # bug). Pinning to 2.1.0+ent instead.
   vault_version = "2.1.0+ent"
 
+  # Approved AMI, not the module's own public-AMI lookup (data.tf) - see the
+  # decision log. ec2_os_distro stays the module default ("ubuntu"), since
+  # this AMI is the same OS/version the module would have picked anyway.
+  vm_image_id = data.aws_ami.hc_base_ubuntu_2204.id
+
   # load_balancing_scheme stays the module default (INTERNAL) - access is via
   # SSM port-forwarding from inside the VPC (see decision log), never real
   # internet traffic, so ingress is restricted to in-VPC CIDRs only.

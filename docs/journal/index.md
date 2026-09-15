@@ -7,6 +7,29 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-15 — Swapping AMIs on a live cluster, one careful step at a time
+
+IBM security flagged the AMIs this build had been using since day one - the HVD module's own
+default Ubuntu lookup, and the demo client's AL2023 alias, both public rather than internally
+approved. Found the approved catalog already published into the sandbox account, and rather
+than guess which of two parallel Ubuntu 22.04 lines was actually wanted, asked directly - a
+security team's own flag isn't the place to assume. See the
+[decision log](../reference/decisions.md) for the full reasoning and the family that got picked.
+
+Did this one in careful stages rather than one big apply, since it touches the live cluster's
+own compute, not just Vault-side config. Updated the launch template first, confirmed it alone
+doesn't touch running instances, then asked before triggering the actual rolling replacement -
+an ASG instance refresh with an explicit minimum-healthy setting rather than trusting the
+default. Watched it node by node: caught myself double-checking real Raft quorum mid-refresh
+when the ASG's own view and Vault's actual state briefly looked like they might be telling
+different stories - they weren't, the new node had already been promoted to voter before the
+old one finished terminating, but checking directly rather than assuming was the right call
+given everything already learned about ASG health checks not being sufficient proof on their
+own. Finished with the same dead-peer cleanup the node-replacement runbook already documents,
+now needed three times over instead of once. Lost AWS credentials twice mid-verification and
+had to wait both times rather than guess at what "Successful" from AWS actually meant - real
+cluster state only ever came from asking Vault directly.
+
 ## 2026-09-14 — The database engine, a real RDS bug, and a "did revocation actually work" scare
 
 Surveyed the full Vault docs rather than just the exam objectives this time, looking for

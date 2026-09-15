@@ -37,6 +37,17 @@ serving traffic."
    shares never touched disk persistently or appeared in full anywhere. Auto-unseal via KMS
    kicked in immediately; `vault operator raft list-peers` confirmed all 3 nodes as voters (1
    leader, 2 followers).
+7. **Swap to an approved AMI, live.** The module's own default AMI lookup (Canonical's public
+   Ubuntu 22.04) got flagged by IBM security. `terraform/vault/data.tf` looks up the latest
+   internally-published `hc-base-ubuntu-2204-*` and passes it to the module's `vm_image_id`
+   override — same OS/version, different (approved) publisher, so nothing else about the
+   module's behavior changes. Applied in two deliberate stages: the launch template update
+   alone first (confirmed via `terraform plan` it only updates `image_id` in place, doesn't
+   touch running instances — same class of gotcha as the version-pin fix above), then a real
+   ASG instance refresh (`MinHealthyPercentage: 66`, explicit rather than the default, so at
+   least 2 of 3 nodes stay up throughout) to actually replace the 3 running nodes. Verified
+   real Raft state through the whole rollout, not just the ASG's own status — see the
+   [decision log](../reference/decisions.md) for what that caught.
 
 ## Gotchas
 
@@ -51,11 +62,20 @@ serving traffic."
   separate `aws autoscaling start-instance-refresh` to actually roll them.
 - `vault status` returns a non-zero exit code when the cluster is sealed — that's the CLI's
   normal convention, not a failure.
+- An ASG instance refresh replaces nodes one at a time by default, but trust the *default*
+  minimum-healthy setting carefully on a 3-node Raft cluster — an explicit
+  `MinHealthyPercentage` states outright how many nodes must stay up, rather than hoping the
+  default happens to preserve quorum.
+- After each node cycles through an instance refresh, its old Raft peer entry lingers as a
+  demoted (non-voter) but not-removed entry — the same Autopilot behavior documented in
+  [node replacement](../runbooks/node-replacement.md), now hit once per replaced node instead
+  of once. `vault operator raft remove-peer` on each old ID is still a manual step.
 
 ## References
 
 - [terraform-aws-vault-enterprise-hvd (GitHub)](https://github.com/hashicorp/terraform-aws-vault-enterprise-hvd)
 - [hashicorp/vault-enterprise-hvd/aws (Terraform Registry)](https://registry.terraform.io/modules/hashicorp/vault-enterprise-hvd/aws/latest)
 - [Port forwarding using Session Manager (AWS docs)](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-port-forwarding.html)
-- [Decision log](../reference/decisions.md) — the license/version fix, and how the init output
-  was secured
+- [EC2 Auto Scaling instance refresh (AWS docs)](https://docs.aws.amazon.com/autoscaling/ec2/userguide/asg-instance-refresh.html)
+- [Decision log](../reference/decisions.md) — the license/version fix, how the init output
+  was secured, and the approved-AMI swap

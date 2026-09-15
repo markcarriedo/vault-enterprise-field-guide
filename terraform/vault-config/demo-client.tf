@@ -5,8 +5,27 @@
 # has no AWS permissions beyond SSM access (to reach it for testing) - its
 # IAM role existing at all is the only thing Vault auth cares about.
 
-data "aws_ssm_parameter" "al2023_ami" {
-  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+# The public AWS-owned AL2023 AMI this used to resolve via SSM parameter is
+# flagged by IBM security as unapproved - same OS, an internally-published,
+# vetted AMI instead. See guide/03-installation.md and the decision log.
+data "aws_ami" "hc_base_al2023" {
+  owners      = ["888995627335"] # ami-prod account
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["hc-base-al2023-x86_64-*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
 }
 
 data "aws_iam_policy_document" "inventory_service_instance_trust" {
@@ -49,7 +68,7 @@ resource "aws_security_group" "inventory_service_instance" {
 }
 
 resource "aws_instance" "inventory_service_instance" {
-  ami                    = data.aws_ssm_parameter.al2023_ami.value
+  ami                    = data.aws_ami.hc_base_al2023.id
   instance_type          = "t3.micro"
   subnet_id              = data.terraform_remote_state.prerequisites.outputs.vault_subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.inventory_service_instance.id]

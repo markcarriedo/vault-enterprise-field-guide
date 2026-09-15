@@ -15,6 +15,52 @@ Template:
 
 ---
 
+## 2026-09-15 — Swapped to IBM-approved AMIs, live on the running cluster
+
+**Context:** IBM security flagged this build's use of unapproved AMIs — the HVD module's own
+default lookup (Canonical's public Ubuntu 22.04 AMI, owner `099720109477`) for the Vault nodes,
+and the AWS-owned AL2023 AMI (via SSM parameter alias) for the demo client. IBM publishes its
+own approved image catalog into this account (owner `888995627335`), with two parallel lines
+for Ubuntu 22.04 — `hc-base-ubuntu-2204-*` and a separate `hc-security-base-ubuntu-2204-*`.
+Confirmed with the user which to standardize on before writing anything, since guessing wrong
+here means a second, avoidable pass through IBM security: `hc-base-*`, matching the example
+they gave directly.
+
+**Decision:** `terraform/vault/data.tf` adds a `data "aws_ami"` lookup for the latest
+`hc-base-ubuntu-2204-*` (x86_64), passed to the HVD module's `vm_image_id` override — the
+module's own escape hatch for exactly this, confirmed by reading `variables.tf` rather than
+assuming it existed. `ec2_os_distro` stays the module default (`"ubuntu"`), since the approved
+AMI is the same OS/version the module would have picked anyway — a same-OS publisher swap, not
+an OS change. `terraform/vault-config/demo-client.tf` gets the equivalent treatment: a
+`data "aws_ami"` for `hc-base-al2023-x86_64-*` replacing the SSM-parameter-alias lookup, same
+architecture (x86_64/`t3.micro`), no instance-type change needed.
+
+**Alternatives considered:** `hc-security-base-ubuntu-2204` — a real, existing alternative,
+raised with the user directly rather than picked unilaterally, since a security team's own
+flag makes "which family did they actually mean" a genuine, consequential ambiguity, not a
+detail to guess past.
+
+**Consequences:** Applied to live infrastructure in stages, each verified before moving to the
+next. The Vault node launch template's `image_id` update alone doesn't touch running
+instances (same class of gotcha as the original Vault-version pin) — confirmed via `terraform
+plan` showing only an in-place launch template update, applied, and only *then* triggered a
+real ASG instance refresh (`MinHealthyPercentage: 66`, explicit rather than trusting the
+default, to guarantee at least 2 of 3 nodes stay up throughout — preserving Raft quorum by
+construction, not by luck) to actually replace the 3 running nodes. Watched real Raft state
+throughout, not just the ASG's own "Successful" label: confirmed the new nodes joined and were
+promoted to voter *before* each old node's termination completed, so real quorum was never at
+risk despite ASG and ASG-ASG-level health checks alone not being sufficient proof (see the
+[node replacement](../runbooks/node-replacement.md) runbook for why). Ended with the same
+three dead-peer cleanup step that runbook already documents — Autopilot demoted each replaced
+node automatically but didn't remove it, so `vault operator raft remove-peer` on all three old
+IDs was still required by hand. The demo client instance (a `ForceNew` AMI change) was replaced
+automatically by `terraform apply` and re-verified end-to-end: booted, installed the Vault CLI
+via `dnf`, and successfully completed a real AWS-auth login with the correct policy attached.
+`terraform plan` on both `terraform/vault` and `terraform/vault-config` showed zero drift
+after everything settled.
+
+---
+
 ## 2026-09-14 — Database secrets engine: a real RDS instance, and a real RDS-specific bug
 
 **Context:** Surveyed the full Vault docs (not just the certification objectives) for anything
