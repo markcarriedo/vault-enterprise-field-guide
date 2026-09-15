@@ -1,4 +1,8 @@
 
+## 2026-09-15
+### 🐛 Bug Fixes
+- *(infra)* Swap to IBM-approved AMIs, live on the running cluster ([05745a8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/05745a824e48e22d9962a1335358b0c9e61a6fd8))
+
 ## 2026-09-14
 ### 🚀 Features
 - *(vault)* Database secrets engine - dynamic Postgres creds, real RDS ([3285522](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/328552255a37ef6534d20a479a17bdd3b38b46b7))

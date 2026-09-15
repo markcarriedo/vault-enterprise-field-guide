@@ -19,6 +19,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # mkdocs-git-revision-date-localized-plugin needs real git history to
+          # compute per-page last-modified dates - the default shallow clone
+          # (depth 1) makes it warn on every build, and that warning became
+          # fatal under --strict once the plugin's logging changed (see the
+          # decision log). fetch-depth: 0 = full history, no shallow clone.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

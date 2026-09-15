@@ -15,6 +15,39 @@ Template:
 
 ---
 
+## 2026-09-15 — Pinned the git-revision plugin after an unpinned dependency broke the deploy
+
+**Context:** The AMI-swap commit (`05745a8`) built clean locally (`mkdocs build --strict`) but
+failed in CI with `Aborted with 1 warnings in strict mode!`. Comparing the failed run's log
+against the prior successful run's log showed the actual warning text was identical
+(`mkdocs-git-revision-date-localized-plugin` complaining about a shallow git clone), but it was
+now coming through mkdocs's own structured logger (`WARNING -  mkdocs_git_revision_date_...`,
+fatal under `--strict`) instead of Python's raw root logger (`WARNING:root:`, not fatal) as in
+the prior run. `requirements.txt` pinned nothing (`>=1.2`), and `pip3 show` locally reported
+`1.5.3` while PyPI's current latest is `1.6.0` — CI's unpinned install had almost certainly
+picked up a newer release mid-session that changed the plugin's internal logging call, flipping
+a cosmetic warning into a build-breaking one with no code change on our side.
+
+**Decision:** Two fixes, addressing both the trigger and the root cause. `deploy-docs.yml` now
+sets `fetch-depth: 0` on `actions/checkout@v4` — the plugin's own warning text recommends this,
+and it removes the shallow-clone condition the warning fires on regardless of which logging
+channel any future plugin version happens to use. `requirements.txt` pins
+`mkdocs-git-revision-date-localized-plugin==1.5.3` — the exact version already verified working
+locally — rather than leaving it floating on `>=1.2`.
+
+**Alternatives considered:** Pinning only the workflow fix and leaving the dependency unpinned
+would have resolved this specific failure but left the same class of silent-drift break able to
+recur on the next plugin release. Pinning `mkdocs-material` and `pymdown-extensions` too was
+considered but not done — no evidence either has caused a break, and pinning without a reason
+just adds upgrade friction; revisit if either causes a similar surprise.
+
+**Consequences:** CI installs are now reproducible for this plugin instead of silently
+tracking its latest release. Bumping it in future is a deliberate `requirements.txt` edit,
+verified locally first — same discipline as the Vault version pin and the AMI `most_recent`
+lookup elsewhere in this build.
+
+---
+
 ## 2026-09-15 — Swapped to IBM-approved AMIs, live on the running cluster
 
 **Context:** IBM security flagged this build's use of unapproved AMIs — the HVD module's own
