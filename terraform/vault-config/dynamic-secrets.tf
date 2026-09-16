@@ -3,7 +3,7 @@
 # main.tf). credential_type = "assumed_role": Vault assumes an existing IAM
 # role via STS and returns the resulting temporary credentials - no IAM
 # users ever created or deleted, unlike the iam_user credential type. See
-# guide/04-configuration.md and the decision log for why assumed_role over
+# guide/04-configuration/03-dynamic-aws-secrets.md and the decision log for why assumed_role over
 # iam_user here.
 #
 # The target role's own permissions are deliberately minimal

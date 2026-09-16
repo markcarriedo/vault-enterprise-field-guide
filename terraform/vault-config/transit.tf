@@ -1,5 +1,5 @@
 # One key per app, same naming convention as the KV path and AWS auth role -
-# see guide/04-configuration.md for why an app only ever gets encrypt/decrypt
+# see guide/04-configuration/07-transit.md for why an app only ever gets encrypt/decrypt
 # capabilities (policies/inventory-service.hcl), never read/export on the key
 # itself. exportable and deletion_allowed are both left at their secure
 # defaults (false) - deliberately, not an oversight: exportable can never be

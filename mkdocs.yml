@@ -80,7 +80,17 @@ nav:
       - 1. Planning & Prerequisites: guide/01-planning.md
       - 2. AWS Infrastructure: guide/02-aws-infrastructure.md
       - 3. Installing Vault Enterprise: guide/03-installation.md
-      - 4. Configuration: guide/04-configuration.md
+      - 4. Configuration:
+          - Overview: guide/04-configuration/index.md
+          - Static secrets (KV v2): guide/04-configuration/01-static-secrets.md
+          - AWS auth method: guide/04-configuration/02-aws-auth.md
+          - Dynamic secrets (AWS secrets engine): guide/04-configuration/03-dynamic-aws-secrets.md
+          - Audit logging (CloudWatch): guide/04-configuration/04-audit-logging.md
+          - Raft snapshot storage: guide/04-configuration/05-raft-snapshots.md
+          - Raft Autopilot: guide/04-configuration/06-raft-autopilot.md
+          - Transit (encryption as a service): guide/04-configuration/07-transit.md
+          - PKI (Vault as a certificate authority): guide/04-configuration/08-pki.md
+          - Database secrets engine: guide/04-configuration/09-database-secrets.md
       - 5. Troubleshooting: guide/05-troubleshooting.md
   - Runbooks:
       - Overview: runbooks/index.md

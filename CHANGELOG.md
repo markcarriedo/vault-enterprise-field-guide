@@ -1,6 +1,7 @@
 
 ## 2026-09-15
 ### 🐛 Bug Fixes
+- *(ci)* Full git checkout and pin git-revision plugin to fix broken deploy ([0ad13c8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0ad13c81aaf5ceffe4856c41b3920084ad8270ff))
 - *(infra)* Swap to IBM-approved AMIs, live on the running cluster ([05745a8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/05745a824e48e22d9962a1335358b0c9e61a6fd8))
 
 ## 2026-09-14

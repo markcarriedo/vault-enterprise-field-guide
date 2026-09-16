@@ -1,6 +1,6 @@
 # AWS auth method - lets an EC2 instance authenticate using its own IAM role
 # identity (a signed STS GetCallerIdentity request) instead of a vended
-# secret_id (AppRole) or the root token. See guide/04-configuration.md and
+# secret_id (AppRole) or the root token. See guide/04-configuration/02-aws-auth.md and
 # the decision log for why AWS auth over AppRole in this build.
 #
 # The Vault nodes' own IAM role is looked up by name (not ARN) so the AWS

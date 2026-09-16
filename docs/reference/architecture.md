@@ -97,4 +97,4 @@ Namespaces, and other auth methods for human operators (GitHub, etc.) — see th
 an AWS auth method, dynamic AWS credentials via the AWS secrets engine, audit logging to
 CloudWatch, Raft snapshot backup/restore, Raft Autopilot configuration, Transit (encryption as
 a service), PKI (Vault as a CA), and the database secrets engine are already live, all
-Terraform-managed — see [Configuration](../guide/04-configuration.md).
+Terraform-managed — see [Configuration](../guide/04-configuration/index.md).

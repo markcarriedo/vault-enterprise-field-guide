@@ -41,7 +41,7 @@ resource "aws_security_group" "vault_demo_postgres" {
 
 # Initial master password - Terraform sets it once at creation, then it's
 # deliberately rotated out from under Terraform once Vault takes ownership
-# (see the "rotate root credentials" step in guide/04-configuration.md).
+# (see the "rotate root credentials" step in guide/04-configuration/09-database-secrets.md).
 # Verified this is safe: the provider's read function never sets the
 # password back into state from Vault's API (it's write-only, Vault never
 # returns it), so a later `terraform plan` can't detect - or silently

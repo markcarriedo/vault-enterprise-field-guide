@@ -1,5 +1,5 @@
 # A dedicated, minimal EC2 instance whose only job is to be a distinct IAM
-# identity for the AWS auth method demo - see guide/04-configuration.md and
+# identity for the AWS auth method demo - see guide/04-configuration/02-aws-auth.md and
 # the decision log. Deliberately not the Vault nodes' own role: a real app
 # shouldn't authenticate to Vault as the Vault server itself. This instance
 # has no AWS permissions beyond SSM access (to reach it for testing) - its

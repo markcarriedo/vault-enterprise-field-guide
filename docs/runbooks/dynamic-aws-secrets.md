@@ -52,7 +52,7 @@ aws sts get-caller-identity
 Optional: from your laptop (via a port-forward tunnel to a Vault node, with the root token),
 `vault lease revoke <lease_id>`, then rerun step 4's `aws sts get-caller-identity` on the demo
 client instance with the *same* exported credentials — it'll still succeed. See the
-[gotcha in Configuration](../guide/04-configuration.md#a-verified-gotcha-assumed_role-revocation-is-soft)
+[gotcha in Configuration](../guide/04-configuration/03-dynamic-aws-secrets.md#a-verified-gotcha-assumed_role-revocation-is-soft)
 for why.
 
 ## Gotchas

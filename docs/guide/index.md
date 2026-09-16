@@ -7,7 +7,7 @@ in-progress notes and discoveries behind each one.
 1. [Planning & Prerequisites](01-planning.md)
 2. [AWS Infrastructure](02-aws-infrastructure.md)
 3. [Installing Vault Enterprise](03-installation.md)
-4. [Configuration](04-configuration.md)
+4. [Configuration](04-configuration/index.md)
 5. [Troubleshooting](05-troubleshooting.md)
 
 Storage backend, auto-unseal, TLS, and clustering/HA don't get their own steps — the HVD

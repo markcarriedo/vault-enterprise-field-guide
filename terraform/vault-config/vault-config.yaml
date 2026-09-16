@@ -14,23 +14,23 @@
 mounts:
   secret:
     type: kv
-    description: "Static secrets (KV v2) - see guide/04-configuration.md"
+    description: "Static secrets (KV v2) - see guide/04-configuration/01-static-secrets.md"
     options:
       version: "2"
   transit:
     type: transit
-    description: "Encryption as a service - see guide/04-configuration.md"
+    description: "Encryption as a service - see guide/04-configuration/07-transit.md"
   pki:
     type: pki
-    description: "Root CA - only ever signs the intermediate, never issues leaf certs directly. See guide/04-configuration.md"
+    description: "Root CA - only ever signs the intermediate, never issues leaf certs directly. See guide/04-configuration/08-pki.md"
     max_lease_ttl_seconds: 315360000 # 10y - must cover the root cert's own TTL
   pki_int:
     type: pki
-    description: "Intermediate CA - issues all real leaf certs. See guide/04-configuration.md"
+    description: "Intermediate CA - issues all real leaf certs. See guide/04-configuration/08-pki.md"
     max_lease_ttl_seconds: 157680000 # 5y - must cover the intermediate cert's own TTL
   database:
     type: database
-    description: "Dynamic database credentials - see guide/04-configuration.md"
+    description: "Dynamic database credentials - see guide/04-configuration/09-database-secrets.md"
 
 apps:
   inventory-service:

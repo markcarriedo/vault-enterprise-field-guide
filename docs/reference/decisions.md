@@ -15,6 +15,37 @@ Template:
 
 ---
 
+## 2026-09-16 — Split Configuration into a nested section, same pattern as the runbooks split
+
+**Context:** A review of the guide's suitability for new engineers flagged `guide/
+04-configuration.md` as having outgrown itself — 400+ lines covering nine distinct features
+(KV v2, AWS auth, AWS dynamic secrets, audit logging, Raft snapshots, Autopilot, Transit, PKI,
+database secrets) as one continuous page, with a shared Gotchas/References list at the bottom
+that no longer made clear which item belonged to which feature. The page itself had predicted
+this back when it only covered 2-3 features ("if this grows past 2-3 distinct features, it'll
+split into a nested section") but the split never happened as features kept getting added.
+
+**Decision:** Split into `guide/04-configuration/`, one page per feature (`01-static-secrets.md`
+through `09-database-secrets.md`) plus an `index.md` overview holding the shared "config as
+code" methodology (the `vault-config.yaml`/`for_each` pattern) that doesn't belong to any one
+feature. Each page keeps the same Goal/Steps/Gotchas/References shape the top-level guide pages
+already use — exactly the treatment `runbooks/` already got for the same reason (see the
+runbooks-split entries below). Updated every cross-link: `mkdocs.yml` nav, `guide/index.md`,
+`reference/architecture.md`, the one runbook that anchor-linked into the old page, and every
+Terraform inline comment/mount `description` field pointing at `guide/04-configuration.md` — the
+mount descriptions are live Vault config, so this also meant a real (metadata-only)
+`terraform apply` against the running cluster, not just a docs change.
+
+**Alternatives considered:** Leaving it as one page and just tightening the prose — rejected,
+since the actual problem was structural (nine unrelated features sharing one Gotchas list, no
+way to deep-link to just one), not verbosity.
+
+**Consequences:** Verified with `mkdocs build --strict` — zero broken links after the move. A
+new engineer landing on a single feature (say, from a runbook's "see Configuration" link) now
+lands on that feature's own page, not partway down a 400-line scroll.
+
+---
+
 ## 2026-09-15 — Pinned the git-revision plugin after an unpinned dependency broke the deploy
 
 **Context:** The AMI-swap commit (`05745a8`) built clean locally (`mkdocs build --strict`) but
