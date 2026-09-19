@@ -1,4 +1,8 @@
 
+## 2026-09-19
+### 📚 Documentation
+- Record the full teardown of the live cluster ([f5fb381](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/f5fb381ea62731146d14578cbf673b012898e181))
+
 ## 2026-09-16
 ### 📚 Documentation
 - Split Configuration into a nested per-feature section ([381a674](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/381a6748853bb73fd6ca290ffce6d2e8c4655e8f))

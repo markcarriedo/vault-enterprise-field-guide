@@ -54,6 +54,21 @@ was created directly via the CLI during `operator init`, not through a `.tf` res
 would otherwise have outlived the cluster it granted access to. Re-standing this up later
 starts from a genuinely clean slate - no leftover state, no orphaned secrets, no partial VPC.
 
+**Follow-up (same day):** Checked what, if anything, was still costing money after the teardown
+rather than assuming "destroyed" meant "billing stopped immediately." Two real, narrow gaps,
+both from AWS default behavior none of the `.tf` files had overridden: the four
+Terraform-managed Secrets Manager secrets (license, TLS cert/key/CA bundle) had no
+`recovery_window_in_days` set, so they defaulted to AWS's standard 30-day pending-deletion
+window - each one billing ~$0.40/month, prorated, until that elapsed on its own. Force-deleted
+all four directly (`aws secretsmanager delete-secret --force-delete-without-recovery`), same as
+the root-token secret already got. The KMS auto-unseal key's `deletion_window_in_days = 7` is
+already AWS's legal minimum - confirmed `PendingDeletion`, actual removal 2026-09-26, a few
+cents total, nothing further to do. `skip_final_snapshot = true` on the RDS instance was
+already set going in, so no lingering snapshot storage charge there either. Everything else
+(EC2, load balancer, NAT Gateway/EIP, S3, Route53) confirmed gone immediately, no windows at
+all - Secrets Manager and KMS are the only two AWS services in this account that impose a
+mandatory pending-deletion period by design.
+
 ---
 
 ## 2026-09-16 — Split Configuration into a nested section, same pattern as the runbooks split
