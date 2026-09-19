@@ -15,6 +15,47 @@ Template:
 
 ---
 
+## 2026-09-19 — Full teardown of the live cluster and every prerequisite
+
+**Context:** Asked to tear everything down for now. Before touching anything, confirmed scope
+and a snapshot-first safety step explicitly rather than assuming - "everything" could plausibly
+have meant "just the Vault cluster, keep the VPC" or "keep the Terraform state bucket for a
+fast re-apply later," and a destructive, largely irreversible action across four dependent
+Terraform stacks (`bootstrap` → `prerequisites` → `vault` → `vault-config`) is exactly the kind
+of decision this build's standing practice says to confirm rather than infer. Chose: destroy
+everything, including the state bucket itself; no final Raft snapshot first, since nothing in
+this sandbox cluster (all demo/test data) was worth preserving.
+
+**Decision:** Destroyed in reverse dependency order - `vault-config`, `vault`, `prerequisites`,
+`bootstrap` - each via `terraform plan -destroy` reviewed before `apply`, not blind applies.
+Two real obstacles, both handled without touching the checked-in Terraform's deliberate
+protections: the `database` mount's destroy failed because Vault couldn't revoke a leftover
+lease from earlier testing against a connection config a prior step in the same apply had
+already destroyed - fixed with `vault lease revoke -force -prefix` directly against Vault,
+bypassing the now-gone backend, rather than reordering the config's own resources for a
+one-time event. The Transit key's `deletion_allowed = false` (deliberately set - see the
+Transit entry above) correctly blocked its own destroy; flipped on directly via `vault write
+transit/keys/.../config deletion_allowed=true` rather than editing that protection out of
+`transit.tf`, since it's the right default for every apply except this exact one. Both the
+Terraform-state bucket and the Raft-snapshot bucket needed their object versions emptied by
+hand first - neither sets `force_destroy`, also deliberately, same reasoning as the Transit key.
+
+**Alternatives considered:** Editing `deletion_allowed`/`force_destroy` into the checked-in
+Terraform to make the destroy "clean" - rejected: those protections exist specifically to make
+accidental destruction hard, and weakening them permanently just to make one deliberate,
+already-confirmed teardown slightly smoother would leave the repo worse for every future apply.
+
+**Consequences:** Every stack's destroyed-resource count matched its original apply count
+exactly (47, 19, 39, 6) - zero drift going in. Swept the account after the fact rather than
+trusting Terraform's own "apply complete" - confirmed no VPCs, instances, RDS, buckets,
+secrets, load balancers, or ASGs remained. Manually deleted `vault-enterprise/init-output` (the
+root token/recovery keys), the one resource never under Terraform's own management, since it
+was created directly via the CLI during `operator init`, not through a `.tf` resource, and
+would otherwise have outlived the cluster it granted access to. Re-standing this up later
+starts from a genuinely clean slate - no leftover state, no orphaned secrets, no partial VPC.
+
+---
+
 ## 2026-09-16 — Split Configuration into a nested section, same pattern as the runbooks split
 
 **Context:** A review of the guide's suitability for new engineers flagged `guide/

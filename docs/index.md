@@ -3,6 +3,13 @@
 A working field guide for installing and configuring [HashiCorp Vault Enterprise](https://www.hashicorp.com/products/vault)
 on AWS EC2 — written as we go, gotchas and dead ends included, not cleaned up after the fact.
 
+!!! note "Currently torn down"
+    The live cluster this guide documents was fully torn down on 2026-09-19 — nothing described
+    below is running right now. See the [decision log](reference/decisions.md#2026-09-19--full-teardown-of-the-live-cluster-and-every-prerequisite)
+    for why and the [journal](journal/index.md) for how it went. The Terraform in this repo
+    still stands the whole thing back up from scratch; the guide, runbooks, and everything else
+    on this site remain an accurate record of what was built and verified.
+
 <div class="grid cards" markdown>
 
 -   __Guide__

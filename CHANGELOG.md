@@ -1,4 +1,8 @@
 
+## 2026-09-16
+### 📚 Documentation
+- Split Configuration into a nested per-feature section ([381a674](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/381a6748853bb73fd6ca290ffce6d2e8c4655e8f))
+
 ## 2026-09-15
 ### 🐛 Bug Fixes
 - *(ci)* Full git checkout and pin git-revision plugin to fix broken deploy ([0ad13c8](https://github.com/markcarriedo/vault-enterprise-field-guide/commit/0ad13c81aaf5ceffe4856c41b3920084ad8270ff))

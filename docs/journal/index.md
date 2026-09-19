@@ -7,6 +7,35 @@ at the repo root. This page sits between the two: the story, at a coarser grain 
 
 ---
 
+## 2026-09-19 — Tearing it all down
+
+Asked to tear everything down for now. Confirmed scope first rather than assuming "everything"
+meant the same thing to both of us - full teardown including the Terraform state bucket itself,
+no final snapshot needed since nothing in this sandbox cluster was worth preserving. See the
+[decision log](../reference/decisions.md) for the full record.
+
+Went in the same order the four Terraform stacks depend on each other, reversed:
+`vault-config`, then `vault`, then `prerequisites`, then `bootstrap`. Two real snags, neither
+surprising in hindsight. The database mount's own `terraform destroy` failed outright trying to
+revoke a leftover lease from earlier testing, because the connection config it needed to revoke
+against had already been destroyed a step earlier in the same apply - force-revoking the lease
+directly against Vault (bypassing the now-gone backend) unblocked it. And the Transit key's
+`deletion_allowed = false` protection - deliberately left in place for exactly this reason, see
+the original Transit entry - did its job and needed flipping on purpose before it would come
+down, rather than editing that protection out of the checked-in config for a one-time event.
+Both S3 buckets (state, snapshots) needed emptying by hand first too; neither had
+`force_destroy` set, also on purpose.
+
+Every stack's resource count matched what got created going in - 47, 19, 39, 6 - zero drift,
+zero surprises beyond the two above. Swept the account afterward rather than trusting the
+`apply complete` messages alone: no VPCs, instances, RDS, buckets, secrets, load balancers, or
+ASGs left belonging to this build. Cleaned up the one thing that was never under Terraform's
+management in the first place - the root token/recovery-key secret from `operator init` - by
+hand, since a cluster that no longer exists has no business having its root token still sitting
+in Secrets Manager.
+
+---
+
 ## 2026-09-15 — Swapping AMIs on a live cluster, one careful step at a time
 
 IBM security flagged the AMIs this build had been using since day one - the HVD module's own
